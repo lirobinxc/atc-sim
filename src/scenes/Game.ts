@@ -1,24 +1,16 @@
-import Phaser from 'phaser';
+import Phaser, { Scale } from 'phaser';
+import Plane from '../objects/Plane';
 
-export default class Demo extends Phaser.Scene {
+export default class Game extends Phaser.Scene {
   constructor() {
     super('GameScene');
   }
 
-  preload() {
-    this.load.image('logo', 'assets/phaser3-logo.png');
-  }
-
   create() {
-    const logo = this.add.image(400, 70, 'logo');
+    const width = this.scale.width;
+    const height = this.scale.height;
 
-    this.tweens.add({
-      targets: logo,
-      y: 350,
-      duration: 1500,
-      ease: 'Sine.inOut',
-      yoyo: true,
-      repeat: -1
-    });
+    const plane = new Plane(this, width * 0.5, height * 0.5);
+    this.add.existing(plane);
   }
 }

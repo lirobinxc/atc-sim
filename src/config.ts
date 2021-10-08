@@ -1,13 +1,22 @@
 import Phaser from 'phaser';
 
-export default {
+const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game',
-  backgroundColor: '#33A5E7',
+  backgroundColor: '#000',
   scale: {
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 768,
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
-  }
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { x: 0, y: 0 },
+      debug: true,
+    },
+  },
 };
+
+export default config;
