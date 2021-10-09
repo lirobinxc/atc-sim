@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -9,6 +10,18 @@ const config: Phaser.Types.Core.GameConfig = {
     height: 768,
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  dom: {
+    createContainer: true,
+  },
+  plugins: {
+    scene: [
+      {
+        key: 'rexUI',
+        plugin: RexUIPlugin,
+        mapping: 'rexUI',
+      },
+    ],
   },
   physics: {
     default: 'arcade',

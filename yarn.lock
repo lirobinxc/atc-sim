@@ -363,6 +363,11 @@
   "resolved" "https://registry.npmjs.org/estree-walker/-/estree-walker-2.0.2.tgz"
   "version" "2.0.2"
 
+"eventemitter3@^3.1.2":
+  "integrity" "sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q=="
+  "resolved" "https://registry.npmjs.org/eventemitter3/-/eventemitter3-3.1.2.tgz"
+  "version" "3.1.2"
+
 "eventemitter3@^4.0.7":
   "integrity" "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="
   "resolved" "https://registry.npmjs.org/eventemitter3/-/eventemitter3-4.0.7.tgz"
@@ -518,6 +523,11 @@
     "emojis-list" "^3.0.0"
     "json5" "^2.1.2"
 
+"lokijs@^1.5.12":
+  "integrity" "sha512-Q5ALD6JiS6xAUWCwX3taQmgwxyveCtIIuL08+ml0nHwT3k0S/GIFJN+Hd38b1qYIMaE5X++iqsqWVksz7SYW+Q=="
+  "resolved" "https://registry.npmjs.org/lokijs/-/lokijs-1.5.12.tgz"
+  "version" "1.5.12"
+
 "magic-string@^0.25.7":
   "integrity" "sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA=="
   "resolved" "https://registry.npmjs.org/magic-string/-/magic-string-0.25.7.tgz"
@@ -583,6 +593,11 @@
   dependencies:
     "yocto-queue" "^0.1.0"
 
+"papaparse@^5.3.1":
+  "integrity" "sha512-Dbt2yjLJrCwH2sRqKFFJaN5XgIASO9YOFeFP8rIBRG2Ain8mqk5r1M6DkfvqEVozVcz3r3HaUGw253hA1nLIcA=="
+  "resolved" "https://registry.npmjs.org/papaparse/-/papaparse-5.3.1.tgz"
+  "version" "5.3.1"
+
 "path-is-absolute@^1.0.0":
   "integrity" "sha1-F0uSaHNVNP+8es5r9TpanhtcX18="
   "resolved" "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz"
@@ -610,6 +625,16 @@
     "exports-loader" "^1.1.1"
     "imports-loader" "^1.2.0"
     "path" "^0.12.7"
+
+"phaser3-rex-plugins@^1.1.61":
+  "integrity" "sha512-y4H8JIMJmpU5GLDVu7lXZWHqQQBpeaE6QxcefuQfcLlEm7Fr9RGIikgJ2zyxafsoY/4CM2MCnJvuo8uIZUdb7Q=="
+  "resolved" "https://registry.npmjs.org/phaser3-rex-plugins/-/phaser3-rex-plugins-1.1.61.tgz"
+  "version" "1.1.61"
+  dependencies:
+    "eventemitter3" "^3.1.2"
+    "lokijs" "^1.5.12"
+    "papaparse" "^5.3.1"
+    "webfontloader" "^1.6.28"
 
 "picocolors@^0.2.1":
   "integrity" "sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA=="
@@ -787,6 +812,11 @@
   dependencies:
     "glob-to-regexp" "^0.4.1"
     "graceful-fs" "^4.1.2"
+
+"webfontloader@^1.6.28":
+  "integrity" "sha1-23hhKSU8tujq5UwvsF+HCvZnW64="
+  "resolved" "https://registry.npmjs.org/webfontloader/-/webfontloader-1.6.28.tgz"
+  "version" "1.6.28"
 
 "webpack-sources@^3.2.0":
   "integrity" "sha512-t6BMVLQ0AkjBOoRTZgqrWm7xbXMBzD+XDq2EZ96+vMfn3qKgsvdXZhbPZ4ElUOpdv4u+iiGe+w3+J75iy/bYGA=="

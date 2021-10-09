@@ -5,7 +5,6 @@ import convertRadiansToCompass from '../utils/convertRadiansToCompass';
 
 export default class Plane extends Phaser.GameObjects.Rectangle {
   private plane: Phaser.GameObjects.Rectangle;
-  private velocity: Phaser.Types.Math.Vector2Like;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private debugger;
   private debugText: string[];
@@ -36,22 +35,7 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
     // CursorKeys is a convenient way to access the arrow keys and spacebar
     this.cursors = scene.input.keyboard.createCursorKeys();
 
-    /* ----------------------- Init Direction Box ---------------------- */
-    const text = scene.add.text(
-      scene.scale.width,
-      scene.scale.height,
-      'Hello World',
-      {
-        fixedWidth: 150,
-        fixedHeight: 36,
-      }
-    );
-    text.setOrigin(0.5, 0.5);
-    text.setInteractive().on('pointerdown', () => {
-      this.rexUI.edit(text);
-    });
-
-    /* ------------------------- Init Debugger ------------------------- */
+    /* ---------------------------- DEBUGGER --------------------------- */
     this.debugText = ['----PLANE DEBUGGER----'];
     this.debugger = scene.add.text(10, 10, this.debugText);
   }
@@ -62,11 +46,51 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
     this.plane.x = body.x + body.halfWidth;
     this.plane.y = body.y + body.halfHeight;
 
-    // Velocity from angle
-    const newRadian = 0;
-    this.velocity = this.scene.physics.velocityFromRotation(newRadian, 60);
+    /* ---------------------- SET MOVEMENT INPUTS ---------------------- */
+    const key = this.cursors;
+    const ACCEL = 200;
+    const MAX_VELOCITY = 100;
+    const BOOST_MULTIPLIER = 3;
 
-    /* ---------------------------- DEBUGGER --------------------------- */
+    // Limits
+    body.setCollideWorldBounds(true);
+    body.setMaxVelocity(MAX_VELOCITY);
+
+    // Normal movement
+    if (key.up.isDown) body.setAccelerationY(-ACCEL);
+    if (key.down.isDown) body.setAccelerationY(ACCEL);
+    if (key.left.isDown) body.setAccelerationX(-ACCEL);
+    if (key.right.isDown) body.setAccelerationX(ACCEL);
+
+    // Boosted movement
+    if (key.space.isDown) {
+      body.setMaxVelocity(
+        MAX_VELOCITY * BOOST_MULTIPLIER,
+        MAX_VELOCITY * BOOST_MULTIPLIER
+      );
+      if (key.up.isDown && key.space.isDown)
+        body.setAccelerationY(-ACCEL * BOOST_MULTIPLIER);
+      if (key.down.isDown && key.space.isDown)
+        body.setAccelerationY(ACCEL * BOOST_MULTIPLIER);
+      if (key.left.isDown && key.space.isDown)
+        body.setAccelerationX(-ACCEL * BOOST_MULTIPLIER);
+      if (key.right.isDown && key.space.isDown)
+        body.setAccelerationX(ACCEL * BOOST_MULTIPLIER);
+    }
+
+    // No keys pressed (slow down)
+    if (key.up.isUp && key.down.isUp) {
+      body.setAccelerationY(0);
+      if (body.velocity.y > 0) body.setVelocityY(body.velocity.y - 1);
+      if (body.velocity.y < 0) body.setVelocityY(body.velocity.y + 1);
+    }
+    if (key.left.isUp && key.right.isUp) {
+      body.setAccelerationX(0);
+      if (body.velocity.x > 0) body.setVelocityX(body.velocity.x - 1);
+      if (body.velocity.x < 0) body.setVelocityX(body.velocity.x + 1);
+    }
+
+    // DEBUG
     this.debugText[1] = `Accel-X: ${body.acceleration.x.toFixed(2)}`;
     this.debugText[2] = `Accel-Y: ${body.acceleration.y.toFixed(2)}`;
     this.debugText[3] = `Velocity-X: ${body.velocity.x.toFixed(2)}`;
