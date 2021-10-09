@@ -1,7 +1,7 @@
 import { BoundsFactory } from 'matter';
 import Phaser from 'phaser';
 
-import convertRadiansToCompass from '../utils/convertRadiansToCompass';
+import convertRadiansToCompass from '../utils/convertRadiansToHeading';
 
 export default class Plane extends Phaser.GameObjects.Rectangle {
   private plane: Phaser.GameObjects.Rectangle;

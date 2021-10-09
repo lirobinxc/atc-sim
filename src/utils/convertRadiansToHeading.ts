@@ -1,4 +1,4 @@
-export default function convertRadiansToCompass(radians: number): number {
+export default function convertRadiansToHeading(radians: number): number {
   const degrees = radians * 57.2958 + 90;
   if (degrees.toFixed(0) === '0') return 360;
   if (degrees <= 0) {

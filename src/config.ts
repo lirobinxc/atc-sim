@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
+// import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -13,15 +13,6 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   dom: {
     createContainer: true,
-  },
-  plugins: {
-    scene: [
-      {
-        key: 'rexUI',
-        plugin: RexUIPlugin,
-        mapping: 'rexUI',
-      },
-    ],
   },
   physics: {
     default: 'arcade',
