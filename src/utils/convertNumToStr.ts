@@ -1,4 +1,4 @@
-export default function convertNumToStr(num: number | string): string {
+export function convertNumToStr(num: number | string): string {
   if (typeof num !== 'string') num = num.toString();
 
   const numArr = num.split('');

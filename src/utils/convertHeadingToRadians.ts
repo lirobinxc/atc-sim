@@ -1,4 +1,4 @@
-export default function convertHeadingToRadians(heading: number): number {
+export function convertHeadingToRadians(heading: number): number {
   let newHeading = heading;
 
   if (heading > 270 && heading <= 360) {
