@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 // Types
-import SceneKeys from '../types/SceneKeys';
-import DomKeys from '../types/DomKeys';
+import { SceneKeys } from '../types/SceneKeys';
+import { DomKeys } from '../types/DomKeys';
 
 export default class Preloader extends Phaser.Scene {
   constructor() {

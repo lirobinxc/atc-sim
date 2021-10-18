@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "pregit": "git add .",
+    "git": "git commit -m",
+    "postgit": "git push"
   },
   "repository": {
     "type": "git",

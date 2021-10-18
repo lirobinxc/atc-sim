@@ -2,13 +2,28 @@ import Phaser from 'phaser';
 import { convertCallsignToSpoken } from '../utils/convertCallsignToSpoken';
 import { convertHeadingToRadians } from '../utils/convertHeadingToRadians';
 import { convertNumToStr } from '../utils/convertNumToStr';
-
 import { convertRadiansToHeading } from '../utils/convertRadiansToHeading';
 import { generateCallsign, ICallsign } from '../utils/generateCallsign';
 
-export default class Plane extends Phaser.GameObjects.Rectangle {
+import { planeConfig, IPlaneConfig } from '../config/PlaneConfig';
+
+export enum PlaneDataBoxPosition {
+  TopLeft = 'topLeft',
+  TopRight = 'topRight',
+  BottomLeft = 'bottomLeft',
+  BottomRight = 'bottomRight',
+}
+
+interface IPlaneDataBoxOffset {
+  [PlaneDataBoxPosition.TopLeft]: { x: number; y: number };
+  [PlaneDataBoxPosition.TopRight]: { x: number; y: number };
+  [PlaneDataBoxPosition.BottomLeft]: { x: number; y: number };
+  [PlaneDataBoxPosition.BottomRight]: { x: number; y: number };
+}
+
+export default class Plane extends Phaser.GameObjects.Container {
+  private config: IPlaneConfig;
   private plane: Phaser.GameObjects.Rectangle;
-  private velocity: Phaser.Types.Math.Vector2Like;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private debugger;
   private debugText: string[];
@@ -20,12 +35,16 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
   private planeCallsign: ICallsign;
   private planeCallsignSpoken: string;
   private isPlaneExecutingCommand: boolean;
+  private isPlaneSelected: boolean;
   private planeNewHeading: number;
   private planeTurn: 'Left' | 'Right';
   private planeHeading: number;
   private planeSpeed: number;
   private planeSpeechBubble: Phaser.GameObjects.Text;
   private planeDataBox: Phaser.GameObjects.Text;
+  private planeDataBoxLine: Phaser.GameObjects.Line;
+  private planeDataBoxPosition: PlaneDataBoxPosition;
+  private planeDataBoxOffset: IPlaneDataBoxOffset;
   private planeDataText: string[];
   private planeTalk: string;
   private isPlaneTalking: boolean;
@@ -33,63 +52,118 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
+    scene.add.existing(this); // adds it to the scene
 
     /* --------------------- Init Plane Attributes --------------------- */
-    const INITIAL_SPEED = 5;
+    this.config = planeConfig;
     this.planeCallsign = generateCallsign();
     this.planeCallsignSpoken = convertCallsignToSpoken(this.planeCallsign);
     this.isPlaneExecutingCommand = false;
+    this.isPlaneSelected = false;
     this.planeHeading = Phaser.Math.Between(1, 360);
     this.planeNewHeading = this.planeHeading;
     this.planeTurn = 'Left';
-    this.planeSpeed = INITIAL_SPEED;
-    this.velocity = { x: INITIAL_SPEED, y: INITIAL_SPEED };
+    this.planeSpeed = this.config.plane.INITIAL_SPEED;
     this.speechText = [''];
     this.isSpeechActive = false;
-    this.planeTalk = '';
+    this.planeTalk = 'testing';
     this.isPlaneTalking = false;
     // Plane Data Text
+    this.planeDataBoxPosition = PlaneDataBoxPosition.BottomRight;
     this.planeDataText = [''];
     this.planeDataText[0] = this.planeCallsign.full;
 
     this.PilotPhrases = { SayAgain: 'Say again', Roger: 'Roger' };
 
+    /* --------------------- Scale the Plane object -------------------- */
+    this.setScale(0.125);
     /* --------------------- Create the Plane shape -------------------- */
     const planeShapeEdgeLength = 12;
-    this.plane = scene.add
-      .rectangle(
-        this.x,
-        this.y,
-        planeShapeEdgeLength,
-        planeShapeEdgeLength,
-        0xa0f078
-      )
-      .setOrigin(0.5, 0.5);
+    this.plane = scene.add.rectangle(
+      this.x,
+      this.y,
+      planeShapeEdgeLength,
+      planeShapeEdgeLength,
+      this.config.plane.COLOR
+    );
 
     // Enable physics on the Plane object
-    scene.physics.add.existing(this);
+    scene.physics.add.existing(this.plane);
 
     // Config the physics body (aka hitbox)
-    const body = this.body as Phaser.Physics.Arcade.Body;
+    const body = this.plane.body as Phaser.Physics.Arcade.Body;
 
-    body.setSize(this.plane.width, this.plane.height);
     body.setCollideWorldBounds(true);
+    console.log(this);
+    body.setSize(this.plane.displayWidth + 10, this.plane.displayHeight + 10);
 
     /* ----------------------- Init onPlaneClick ----------------------- */
-    this.setInteractive();
-    this.on('pointerdown', () => {
-      alert('clicked ' + this.planeCallsign.full);
-    });
+    this.plane.setInteractive();
+    this.plane.on('pointerdown', () => {});
 
     /* ----------------- Create Plane talk text bubble ----------------- */
     this.planeSpeechBubble = scene.add
-      .text(this.plane.x - 25, this.plane.y - 25, this.planeTalk)
+      .text(this.plane.x, this.plane.y, this.planeTalk)
       .setOrigin(0.5, 0.5);
 
     /* --------------------- Create Plane Data Box --------------------- */
+    this.planeDataBoxOffset = {
+      [PlaneDataBoxPosition.TopLeft]: {
+        x: -this.config.dataBox.TEXT_OFFSET_X,
+        y: -this.config.dataBox.TEXT_OFFSET_Y,
+      },
+      [PlaneDataBoxPosition.TopRight]: {
+        x: this.config.dataBox.TEXT_OFFSET_X,
+        y: -this.config.dataBox.TEXT_OFFSET_Y,
+      },
+      [PlaneDataBoxPosition.BottomLeft]: {
+        x: -this.config.dataBox.TEXT_OFFSET_X,
+        y: this.config.dataBox.TEXT_OFFSET_Y,
+      },
+      [PlaneDataBoxPosition.BottomRight]: {
+        x: this.config.dataBox.TEXT_OFFSET_X,
+        y: this.config.dataBox.TEXT_OFFSET_Y,
+      },
+    };
     this.planeDataBox = scene.add
-      .text(this.plane.x - 25, this.plane.y - 25, this.planeDataText)
+      .text(
+        this.plane.x + this.planeDataBoxOffset[this.planeDataBoxPosition].x,
+        this.plane.y + this.planeDataBoxOffset[this.planeDataBoxPosition].y,
+        this.planeDataText,
+        { color: 'white' }
+      )
       .setOrigin(0.5, 0.5);
+
+    // planeDataBox Line
+    this.planeDataBoxLine = scene.add
+      .line(
+        0,
+        0,
+        this.getPlaneDataBoxLinePlacement(PlaneDataBoxPosition.BottomRight)
+          .planeCorner.x,
+        this.getPlaneDataBoxLinePlacement(PlaneDataBoxPosition.BottomRight)
+          .planeCorner.y,
+        this.getPlaneDataBoxLinePlacement(PlaneDataBoxPosition.BottomRight)
+          .dataCorner.x,
+        this.getPlaneDataBoxLinePlacement(PlaneDataBoxPosition.BottomRight)
+          .dataCorner.y,
+        this.config.dataBox.LINE_COLOR
+      )
+      .setOrigin(0, 0)
+      .setLineWidth(0.7);
+
+    this.planeDataBox.setInteractive();
+    this.planeDataBox.on('pointerdown', () => {
+      this.cyclePlaneDataBoxPosition();
+    });
+
+    // TEST: screen middle circle
+    scene.add.circle(
+      scene.scale.width * 0.5,
+      scene.scale.height * 0.5,
+      3,
+      0xff0000
+    );
 
     /* ------------------------ Init Cursor Keys ----------------------- */
     // CursorKeys is a convenient way to access the arrow keys and spacebar
@@ -168,21 +242,29 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
   }
 
   preUpdate() {
-    const body = this.body as Phaser.Physics.Arcade.Body;
+    const body = this.plane.body as Phaser.Physics.Arcade.Body;
     /* ------------------- Align elements with hitbox ------------------ */
-    // Aligns the Plane with its hitbox
-    this.plane.x = body.x + body.halfWidth;
-    this.plane.y = body.y + body.halfHeight;
     // Aligns Plane speech bubble
-    this.planeSpeechBubble.x = body.x + body.halfWidth + 25;
-    this.planeSpeechBubble.y = body.y + body.halfHeight + 25;
-    // Aligns Plane data box
-    this.planeDataBox.x = body.x + body.halfWidth + 40;
-    this.planeDataBox.y = body.y + body.halfHeight + 40;
-    // Draws line connecting Plane to Data Box
-
+    this.planeSpeechBubble.x = this.plane.x;
+    this.planeSpeechBubble.y = this.plane.y;
     // Updates speech bubble test
     this.planeSpeechBubble.setText(this.planeTalk);
+    // Aligns Plane data box
+    this.planeDataBox.setX(
+      this.plane.x + this.planeDataBoxOffset[this.planeDataBoxPosition].x
+    );
+    this.planeDataBox.setY(
+      this.plane.y + this.planeDataBoxOffset[this.planeDataBoxPosition].y
+    );
+    // Aligns line connecting Plane to Data Box
+    this.planeDataBoxLine.setTo(
+      this.getPlaneDataBoxLinePlacement(this.planeDataBoxPosition).planeCorner
+        .x,
+      this.getPlaneDataBoxLinePlacement(this.planeDataBoxPosition).planeCorner
+        .y,
+      this.getPlaneDataBoxLinePlacement(this.planeDataBoxPosition).dataCorner.x,
+      this.getPlaneDataBoxLinePlacement(this.planeDataBoxPosition).dataCorner.y
+    );
 
     /* ----------------------- Set Plane Heading ----------------------- */
     // This section calculates velocity when given a compass heading.
@@ -206,6 +288,18 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
       body.velocity
     );
 
+    /* ---------------- Change Plane Symbol if selected ---------------- */
+    if (this.isPlaneSelected) {
+      this.plane.fillColor = this.config.plane.COLOR_SELECTED;
+    } else {
+      this.plane.fillColor = this.config.plane.COLOR;
+    }
+    const escKey: Phaser.Input.Keyboard.Key =
+      this.scene.input.keyboard.addKey('ESC');
+    if (escKey.isDown) {
+      this.isPlaneSelected = false;
+    }
+
     /* ---------------------------- DEBUGGER --------------------------- */
     const compassHeading = convertRadiansToHeading(body.angle);
     this.debugText[1] = `Accel-X: ${body.acceleration.x.toFixed(2)}`;
@@ -217,10 +311,10 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
     this.debugText[7] = `Heading = ${this.planeHeading
       .toString()
       .padStart(3, '0')}`;
-    this.debugText[8] = `LAST COMMAND: Turn ${
+    this.debugText[9] = `LAST COMMAND: Turn ${
       this.planeTurn
     } heading ${this.planeNewHeading.toString().padStart(3, '0')}`;
-    this.debugText[9] = `SPEECH: ${this.speechText.join(' ')}`;
+    this.debugText[10] = `SPEECH: ${this.speechText.join(' ')}`;
 
     this.debugger.setText(this.debugText);
 
@@ -248,5 +342,46 @@ export default class Plane extends Phaser.GameObjects.Rectangle {
         this.isPlaneTalking = false;
       }, phrase.length * 200);
     }
+  }
+
+  cyclePlaneDataBoxPosition() {
+    switch (this.planeDataBoxPosition) {
+      case PlaneDataBoxPosition.TopLeft:
+        return (this.planeDataBoxPosition = PlaneDataBoxPosition.TopRight);
+      case PlaneDataBoxPosition.TopRight:
+        return (this.planeDataBoxPosition = PlaneDataBoxPosition.BottomRight);
+      case PlaneDataBoxPosition.BottomRight:
+        return (this.planeDataBoxPosition = PlaneDataBoxPosition.BottomLeft);
+      case PlaneDataBoxPosition.BottomLeft:
+        return (this.planeDataBoxPosition = PlaneDataBoxPosition.TopLeft);
+      default:
+        return (this.planeDataBoxPosition = PlaneDataBoxPosition.BottomRight);
+    }
+  }
+
+  getPlaneDataBoxLinePlacement(position: PlaneDataBoxPosition) {
+    const getCorners = {
+      [PlaneDataBoxPosition.TopLeft]: {
+        getPlaneCorner: this.plane.getTopLeft(),
+        getDataCorner: this.planeDataBox.getBottomRight(),
+      },
+      [PlaneDataBoxPosition.TopRight]: {
+        getPlaneCorner: this.plane.getTopRight(),
+        getDataCorner: this.planeDataBox.getBottomLeft(),
+      },
+      [PlaneDataBoxPosition.BottomLeft]: {
+        getPlaneCorner: this.plane.getBottomLeft(),
+        getDataCorner: this.planeDataBox.getTopRight(),
+      },
+      [PlaneDataBoxPosition.BottomRight]: {
+        getPlaneCorner: this.plane.getBottomRight(),
+        getDataCorner: this.planeDataBox.getTopLeft(),
+      },
+    };
+    const linePlacement = {
+      planeCorner: getCorners[position].getPlaneCorner,
+      dataCorner: getCorners[position].getDataCorner,
+    };
+    return linePlacement;
   }
 }

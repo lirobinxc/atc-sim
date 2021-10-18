@@ -12,10 +12,7 @@ export default class Game extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    const plane1 = new Plane(this, width * 0.5, height * 0.5, 'ACA-142');
-    const plane2 = new Plane(this, width * 0.4, height * 0.4, 'DAL-23');
-
-    this.add.existing(plane1);
-    this.add.existing(plane2);
+    const plane1 = new Plane(this, width * 0.5, height * 0.5);
+    // const plane2 = new Plane(this, width * 0.4, height * 0.4);
   }
 }
