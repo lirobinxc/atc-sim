@@ -8,12 +8,7 @@ export default class Preloader extends Phaser.Scene {
     super(SceneKeys.Preloader);
   }
 
-  preload() {
-    this.load.html(
-      DomKeys.DirectionInput,
-      'phaser-atc/src/dom-elements/textInput.html'
-    );
-  }
+  preload() {}
 
   create() {
     this.scene.start(SceneKeys.Game);

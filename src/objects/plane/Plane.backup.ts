@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
-import { convertCallsignToSpoken } from '../utils/convertCallsignToSpoken';
-import { convertHeadingToRadians } from '../utils/convertHeadingToRadians';
-import { convertNumToStr } from '../utils/convertNumToStr';
-import { convertRadiansToHeading } from '../utils/convertRadiansToHeading';
-import { generateCallsign, ICallsign } from '../utils/generateCallsign';
+import { convertCallsignToSpoken } from '../../utils/convertCallsignToSpoken';
+import { convertHeadingToRadians } from '../../utils/convertHeadingToRadians';
+import { convertNumToStr } from '../../utils/convertNumToStr';
+import { convertRadiansToHeading } from '../../utils/convertRadiansToHeading';
+import { generateCallsign, ICallsign } from '../../utils/generateCallsign';
 
-import { planeConfig, IPlaneConfig } from '../config/PlaneConfig';
+import { planeConfig, IPlaneConfig } from '../../config/PlaneConfig';
 
 export enum PlaneDataBoxPosition {
   TopLeft = 'topLeft',
@@ -80,8 +80,8 @@ export default class Plane extends Phaser.GameObjects.Container {
     /* --------------------- Create the Plane shape -------------------- */
     const planeShapeEdgeLength = 12;
     this.plane = scene.add.rectangle(
-      this.x,
-      this.y,
+      x,
+      y,
       planeShapeEdgeLength,
       planeShapeEdgeLength,
       this.config.plane.COLOR
@@ -157,14 +157,6 @@ export default class Plane extends Phaser.GameObjects.Container {
       this.cyclePlaneDataBoxPosition();
     });
 
-    // TEST: screen middle circle
-    scene.add.circle(
-      scene.scale.width * 0.5,
-      scene.scale.height * 0.5,
-      3,
-      0xff0000
-    );
-
     /* ------------------------ Init Cursor Keys ----------------------- */
     // CursorKeys is a convenient way to access the arrow keys and spacebar
     this.cursors = scene.input.keyboard.createCursorKeys();
@@ -226,7 +218,11 @@ export default class Plane extends Phaser.GameObjects.Container {
           console.error('SPEECH ERROR');
         };
       };
-      startSpeechRecognition();
+      try {
+        startSpeechRecognition();
+      } catch (err) {
+        console.error(err);
+      }
     } else {
       alert(
         `Your browser doesn't support Speech Recognition. Use the latest Chrome.`

@@ -3,6 +3,7 @@ export interface IPlaneConfig {
     INITIAL_SPEED: number;
     COLOR: number;
     COLOR_SELECTED: number;
+    SIZE: number;
   };
   dataBox: {
     FONT_COLOR: string;
@@ -14,9 +15,10 @@ export interface IPlaneConfig {
 
 export const planeConfig = {
   plane: {
-    INITIAL_SPEED: 10,
+    INITIAL_SPEED: 5,
     COLOR: 0xa0f078,
     COLOR_SELECTED: 0xcc66ff,
+    SIZE: 10,
   },
   dataBox: {
     FONT_COLOR: '#fff',
