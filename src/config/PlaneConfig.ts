@@ -11,6 +11,9 @@ export interface IPlaneConfig {
     TEXT_OFFSET_X: number;
     TEXT_OFFSET_Y: number;
   };
+  pilotSpeech: {
+    TEXT_OFFSET_Y: number;
+  };
 }
 
 export const planeConfig = {
@@ -25,5 +28,8 @@ export const planeConfig = {
     LINE_COLOR: 0xffffff,
     TEXT_OFFSET_X: 60,
     TEXT_OFFSET_Y: 40,
+  },
+  pilotSpeech: {
+    TEXT_OFFSET_Y: 20,
   },
 };

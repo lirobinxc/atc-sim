@@ -3,7 +3,7 @@ import type { IPlaneConfig } from '../../config/PlaneConfig';
 import { PlaneSymbol } from './components/PlaneSymbol';
 import { generateCallsign, IPlaneCallsign } from '../../utils/generateCallsign';
 import { initPlaneSpeechRecogntion } from './functions/initPlaneSpeechRecognition';
-import { PlaneSpeechBubble } from './components/PlaneSpeechBubble';
+import { PilotSpeech } from './components/PilotSpeech';
 
 export interface IPlaneConstructor {
   config: IPlaneConfig;
@@ -19,7 +19,7 @@ export interface IPlayerSpeech {
 }
 
 export interface IPilotSpeech {
-  init: undefined | PlaneSpeechBubble;
+  init: undefined | PilotSpeech;
   text: string;
   isTalking: boolean;
 }
@@ -68,7 +68,7 @@ export class Plane extends Phaser.GameObjects.Container {
     initPlaneSpeechRecogntion(this);
 
     /* ----------------------- Setup Pilot Speech ---------------------- */
-    this.pilotSpeech.init = new PlaneSpeechBubble(this);
+    this.pilotSpeech.init = new PilotSpeech(this);
   }
 
   preUpdate() {
