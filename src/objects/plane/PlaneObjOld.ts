@@ -88,7 +88,7 @@ export default class Plane {
     this.plane = new PlaneSymbol({ config: this.config, scene, x, y });
 
     /* -------------------- Init speech recognition -------------------- */
-    initPlaneSpeechRecogntion(this.speech, this.plane);
+    initPlaneSpeechRecogntion({ plane: this.speech, speech: this.plane });
 
     /* ----------------- Create Plane talk text bubble ----------------- */
     this.planeSpeechBubble = scene.add

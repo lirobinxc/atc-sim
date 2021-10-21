@@ -1,11 +1,8 @@
-import type { PlaneSymbol } from '../components/PlaneSymbol';
-import { IPlaneSpeech } from '../PlaneObjOld';
+import { Plane } from '../Plane';
 
 /* --------------------- Init Speech Recognition -------------------- */
-export function initPlaneSpeechRecogntion(
-  speech: IPlaneSpeech,
-  planeSymbol: PlaneSymbol
-) {
+export function initPlaneSpeechRecogntion(plane: Plane) {
+  const speech = plane.playerSpeech;
   if ('webkitSpeechRecognition' in window) {
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
@@ -32,8 +29,8 @@ export function initPlaneSpeechRecogntion(
           // Get TURN
           const turnPrefixIdx = speech.text.indexOf('turn');
           const turnStr = speech.text[turnPrefixIdx + 1];
-          if (turnStr === 'left') planeSymbol.turnTo = 'Left';
-          if (turnStr === 'right') planeSymbol.turnTo = 'Right';
+          if (turnStr === 'left') plane.move.turnTo = 'Left';
+          if (turnStr === 'right') plane.move.turnTo = 'Right';
 
           if (isNaN(headingNum)) {
             // this.setPlaneTalk(this.PilotPhrases.SayAgain);
@@ -45,7 +42,7 @@ export function initPlaneSpeechRecogntion(
               // this.setPlaneTalk(
               //   `${this.PilotPhrases.Roger}, heading ${spokenHeading}`
               // );
-              planeSymbol.newHeading = headingNum;
+              plane.move.newHeading = headingNum;
             }, 500);
           }
         }

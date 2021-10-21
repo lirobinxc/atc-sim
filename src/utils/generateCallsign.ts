@@ -1,19 +1,25 @@
 import { PlaneCarriers } from '../types/PlaneCarriers';
-import { getRandomEnum } from './getRandomEnum';
+import { convertCallsignToSpoken } from './convertCallsignToSpoken';
 
-export interface ICallsign {
+export interface IPlaneCallsign {
   carrier: string;
   number: number;
   full: string;
+  spoken: string;
 }
 
-export function generateCallsign(): ICallsign {
+export function generateCallsign(): IPlaneCallsign {
   const carrierCodes = Object.keys(PlaneCarriers);
   const carrier = carrierCodes[Phaser.Math.Between(0, carrierCodes.length - 1)];
   const number = Phaser.Math.Between(10, 999);
-  return {
+  const callsignData = {
     carrier,
     number,
     full: `${carrier}${number}`,
+    spoken: '',
+  };
+  return {
+    ...callsignData,
+    spoken: convertCallsignToSpoken(callsignData),
   };
 }

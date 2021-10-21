@@ -1,18 +1,33 @@
 import Phaser from 'phaser';
-import { planeConfig, IPlaneConfig } from '../../config/PlaneConfig';
+import type { IPlaneConfig } from '../../config/PlaneConfig';
 import { PlaneSymbol } from './components/PlaneSymbol';
-import { convertHeadingToRadians } from '../../utils/convertHeadingToRadians';
+import { generateCallsign, IPlaneCallsign } from '../../utils/generateCallsign';
+import { initPlaneSpeechRecogntion } from './functions/initPlaneSpeechRecognition';
+import { PlaneSpeechBubble } from './components/PlaneSpeechBubble';
 
-interface IPlane {
+export interface IPlaneConstructor {
   config: IPlaneConfig;
   scene: Phaser.Scene;
   x: number;
   y: number;
 }
 
+export interface IPlayerSpeech {
+  init: any; // the SpeechRecognition object
+  text: string[];
+  isActive: boolean;
+}
+
+export interface IPilotSpeech {
+  init: undefined | PlaneSpeechBubble;
+  text: string;
+  isTalking: boolean;
+}
+
 export class Plane extends Phaser.GameObjects.Container {
   config: IPlaneConfig;
   scene: Phaser.Scene;
+  callsign: IPlaneCallsign;
   status: { isSelected: boolean; isExecutingCommand: boolean };
   move: {
     currentHeading: number;
@@ -21,12 +36,15 @@ export class Plane extends Phaser.GameObjects.Container {
     speed: number;
   };
   symbol: PlaneSymbol;
+  playerSpeech: IPlayerSpeech;
+  pilotSpeech: IPilotSpeech;
 
-  constructor({ config, scene, x, y }: IPlane) {
+  constructor({ config, scene, x, y }: IPlaneConstructor) {
     super(scene, x, y);
     /* --------------------------- Init Props -------------------------- */
     this.config = config;
     this.scene = scene;
+    this.callsign = generateCallsign();
     this.status = { isSelected: false, isExecutingCommand: false };
     const initHeading = Phaser.Math.Between(1, 360);
     this.move = {
@@ -36,47 +54,35 @@ export class Plane extends Phaser.GameObjects.Container {
       turnTo: 'Left',
     };
     this.symbol = new PlaneSymbol({ plane: this, scene, x, y });
+    this.playerSpeech = { init: undefined, isActive: false, text: ['testing'] };
+    this.pilotSpeech = {
+      init: undefined,
+      text: 'testing',
+      isTalking: false,
+    };
 
     /* -------------------------- Setup Plane -------------------------- */
     scene.add.existing(this);
+
+    /* -------------------- Setup Speech Recognition ------------------- */
+    initPlaneSpeechRecogntion(this);
+
+    /* ----------------------- Setup Pilot Speech ---------------------- */
+    this.pilotSpeech.init = new PlaneSpeechBubble(this);
   }
 
   preUpdate() {
-    const body = this.symbol.body as Phaser.Physics.Arcade.Body;
+    this.initPressToTalk();
+  }
 
-    /* ----------------------- Set Plane Heading ----------------------- */
-    // This section calculates velocity when given a compass heading.
-    if (this.move.currentHeading !== this.move.newHeading) {
-      this.status.isExecutingCommand = true;
-      if (this.move.turnTo === 'Left') {
-        if (this.move.currentHeading === 1) this.move.currentHeading = 360;
-        else this.move.currentHeading -= 1;
-      }
-      if (this.move.turnTo === 'Right') {
-        if (this.move.currentHeading === 360) this.move.currentHeading = 1;
-        else this.move.currentHeading += 1;
-      }
-    } else {
-      this.status.isExecutingCommand = false;
+  private initPressToTalk() {
+    const keyCodes = Phaser.Input.Keyboard.KeyCodes;
+    const spaceKey = this.scene.input.keyboard.addKey(keyCodes.SPACE);
+    if (spaceKey.isDown) {
+      if (!this.playerSpeech.isActive) this.playerSpeech.init.start();
     }
-
-    const planeRadian = convertHeadingToRadians(this.move.currentHeading);
-    this.scene.physics.velocityFromRotation(
-      planeRadian,
-      this.move.speed,
-      body.velocity
-    );
-
-    /* ---------------- Change Plane Symbol if selected ---------------- */
-    if (this.status.isSelected) {
-      this.symbol.fillColor = this.config.plane.COLOR_SELECTED;
-    } else {
-      this.symbol.fillColor = this.config.plane.COLOR;
-    }
-    const escKey: Phaser.Input.Keyboard.Key =
-      this.scene.input.keyboard.addKey('ESC');
-    if (escKey.isDown) {
-      this.status.isSelected = false;
+    if (spaceKey.isUp) {
+      if (this.playerSpeech.isActive) this.playerSpeech.init.stop();
     }
   }
 }

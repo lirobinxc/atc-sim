@@ -44,42 +44,46 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
   }
 
   preUpdate() {
+    this.updateNewHeading();
+    this.changeColorOnClick();
+  }
+
+  /** Updates velocity when given a compass heading. */
+  private updateNewHeading(plane = this.plane) {
     const body = this.body as Phaser.Physics.Arcade.Body;
-    const plane = this.plane;
+    // CurrentHeading is gradually dec/inc until it reaches the newHeading
+    if (plane.move.currentHeading !== plane.move.newHeading) {
+      plane.status.isExecutingCommand = true;
+      if (plane.move.turnTo === 'Left') {
+        if (plane.move.currentHeading === 1) plane.move.currentHeading = 360;
+        else plane.move.currentHeading -= 1;
+      }
+      if (plane.move.turnTo === 'Right') {
+        if (plane.move.currentHeading === 360) plane.move.currentHeading = 1;
+        else plane.move.currentHeading += 1;
+      }
+    } else {
+      plane.status.isExecutingCommand = false;
+    }
+    const planeRadian = convertHeadingToRadians(plane.move.currentHeading);
+    this.scene.physics.velocityFromRotation(
+      planeRadian,
+      plane.move.speed,
+      body.velocity
+    );
+  }
 
-    // /* ----------------------- Set Plane Heading ----------------------- */
-    // // This section calculates velocity when given a compass heading.
-    // if (plane.move.currentHeading !== plane.move.newHeading) {
-    //   plane.status.isExecutingCommand = true;
-    //   if (plane.move.turnTo === 'Left') {
-    //     if (plane.move.currentHeading === 1) plane.move.currentHeading = 360;
-    //     else plane.move.currentHeading -= 1;
-    //   }
-    //   if (plane.move.turnTo === 'Right') {
-    //     if (plane.move.currentHeading === 360) plane.move.currentHeading = 1;
-    //     else plane.move.currentHeading += 1;
-    //   }
-    // } else {
-    //   plane.status.isExecutingCommand = false;
-    // }
-
-    // const planeRadian = convertHeadingToRadians(plane.move.currentHeading);
-    // this.scene.physics.velocityFromRotation(
-    //   planeRadian,
-    //   plane.move.speed,
-    //   body.velocity
-    // );
-
-    // /* ---------------- Change Plane Symbol if selected ---------------- */
-    // if (plane.status.isSelected) {
-    //   this.fillColor = plane.config.plane.COLOR_SELECTED;
-    // } else {
-    //   this.fillColor = plane.config.plane.COLOR;
-    // }
-    // const escKey: Phaser.Input.Keyboard.Key =
-    //   this.scene.input.keyboard.addKey('ESC');
-    // if (escKey.isDown) {
-    //   plane.status.isSelected = false;
-    // }
+  /** Change plane color if selected */
+  private changeColorOnClick(plane = this.plane) {
+    if (plane.status.isSelected) {
+      this.fillColor = plane.config.plane.COLOR_SELECTED;
+    } else {
+      this.fillColor = plane.config.plane.COLOR;
+    }
+    const escKey: Phaser.Input.Keyboard.Key =
+      this.scene.input.keyboard.addKey('ESC');
+    if (escKey.isDown) {
+      plane.status.isSelected = false;
+    }
   }
 }

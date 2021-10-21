@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { convertCallsignToSpoken } from '../../utils/convertCallsignToSpoken';
 import { convertHeadingToRadians } from '../../utils/convertHeadingToRadians';
-import { convertNumToStr } from '../../utils/convertNumToStr';
+import { convertNumToText } from '../../utils/convertNumToText';
 import { convertRadiansToHeading } from '../../utils/convertRadiansToHeading';
-import { generateCallsign, ICallsign } from '../../utils/generateCallsign';
+import { generateCallsign, IPlaneCallsign } from '../../utils/generateCallsign';
 
 import { planeConfig, IPlaneConfig } from '../../config/PlaneConfig';
 
@@ -32,7 +32,7 @@ export default class Plane extends Phaser.GameObjects.Container {
   private isSpeechActive: boolean;
   private speechSynth: SpeechSynthesis;
   // Plane Attributes
-  private planeCallsign: ICallsign;
+  private planeCallsign: IPlaneCallsign;
   private planeCallsignSpoken: string;
   private isPlaneExecutingCommand: boolean;
   private isPlaneSelected: boolean;
@@ -194,7 +194,7 @@ export default class Plane extends Phaser.GameObjects.Container {
               this.setPlaneTalk(this.PilotPhrases.SayAgain);
             } else {
               setTimeout(() => {
-                const spokenHeading = convertNumToStr(headingStr);
+                const spokenHeading = convertNumToText(headingStr);
                 this.setPlaneTalk(
                   `${this.PilotPhrases.Roger}, heading ${spokenHeading}`
                 );
