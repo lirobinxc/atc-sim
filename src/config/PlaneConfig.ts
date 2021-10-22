@@ -5,7 +5,7 @@ export interface IPlaneConfig {
     COLOR_SELECTED: number;
     SIZE: number;
   };
-  dataBox: {
+  dataTag: {
     FONT_COLOR: string;
     LINE_COLOR: number;
     TEXT_OFFSET_X: number;
@@ -23,7 +23,7 @@ export const planeConfig = {
     COLOR_SELECTED: 0xcc66ff,
     SIZE: 10,
   },
-  dataBox: {
+  dataTag: {
     FONT_COLOR: '#fff',
     LINE_COLOR: 0xffffff,
     TEXT_OFFSET_X: 60,

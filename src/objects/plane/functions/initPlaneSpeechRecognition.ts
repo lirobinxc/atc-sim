@@ -1,8 +1,13 @@
+import { PilotPhrases } from '../../../types/PilotPhrases';
+import { convertNumToText } from '../../../utils/convertNumToText';
 import { Plane } from '../Plane';
 
 /* --------------------- Init Speech Recognition -------------------- */
 export function initPlaneSpeechRecogntion(plane: Plane) {
   const speech = plane.playerSpeech;
+  function talk(phrase: string) {
+    plane.pilotSpeech.talk(phrase);
+  }
   if ('webkitSpeechRecognition' in window) {
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
@@ -33,15 +38,13 @@ export function initPlaneSpeechRecogntion(plane: Plane) {
           if (turnStr === 'right') plane.move.turnTo = 'Right';
 
           if (isNaN(headingNum)) {
-            // this.setPlaneTalk(this.PilotPhrases.SayAgain);
+            talk(PilotPhrases.SayAgain);
           } else if (headingNum < 1 || headingNum > 360) {
-            // this.setPlaneTalk(this.PilotPhrases.SayAgain);
+            talk(PilotPhrases.SayAgain);
           } else {
             setTimeout(() => {
-              // const spokenHeading = convertNumToStr(headingStr);
-              // this.setPlaneTalk(
-              //   `${this.PilotPhrases.Roger}, heading ${spokenHeading}`
-              // );
+              const spokenHeading = convertNumToText(headingStr);
+              talk(`${PilotPhrases.Roger}, heading ${spokenHeading}`);
               plane.move.newHeading = headingNum;
             }, 500);
           }
