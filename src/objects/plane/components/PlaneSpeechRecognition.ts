@@ -5,12 +5,18 @@ import { Plane } from '../Plane';
 /* --------------------- Init Speech Recognition -------------------- */
 export class PlaneSpeechRecogntion {
   public init: any;
-  public selectedPlane: Plane;
+  public plane: Plane;
   public isActive: boolean;
+  public result: {
+    text: string[];
+  };
 
   constructor(plane: Plane) {
-    this.selectedPlane = plane;
+    this.plane = plane;
     this.isActive = false;
+    this.result = {
+      text: [''],
+    };
 
     try {
       this.initSpeechRecognition();
@@ -31,26 +37,26 @@ export class PlaneSpeechRecogntion {
       speech.onresult = (event: any) => {
         const transcript: string = event.results[0][0].transcript;
         const words = transcript.toLowerCase().split(' ');
-        if (words.length > 0) speech.text = words;
-        console.log(speech.text);
+        if (words.length > 0) this.result.text = words;
+        // console.log(this.result.text);
 
-        if (speech.text.length > 0) {
+        if (this.result.text.length > 0) {
           // Get PLANE CALLSIGN
-          const endOfCallsignIdx = getEndOfCallsignIdx(speech.text);
-          const callsign = speech.text.slice(0, endOfCallsignIdx);
+          const endOfCallsignIdx = getEndOfCallsignIdx(this.result.text);
+          const callsign = this.result.text.slice(0, endOfCallsignIdx);
           console.log({ callsign });
 
-          if (this.selectedPlane) {
+          if (this.plane) {
             // Get HEADING
-            const headingPrefixIdx = speech.text.indexOf('heading');
-            const headingStr = speech.text[headingPrefixIdx + 1];
+            const headingPrefixIdx = this.result.text.indexOf('heading');
+            const headingStr = this.result.text[headingPrefixIdx + 1];
             const headingNum = Number(headingStr);
 
             // Get TURN
-            const turnPrefixIdx = speech.text.indexOf('turn');
-            const turnStr = speech.text[turnPrefixIdx + 1];
-            if (turnStr === 'left') this.selectedPlane.move.turnTo = 'Left';
-            if (turnStr === 'right') this.selectedPlane.move.turnTo = 'Right';
+            const turnPrefixIdx = this.result.text.indexOf('turn');
+            const turnStr = this.result.text[turnPrefixIdx + 1];
+            if (turnStr === 'left') this.plane.move.turnTo = 'Left';
+            if (turnStr === 'right') this.plane.move.turnTo = 'Right';
 
             if (isNaN(headingNum)) {
               this.talk(PilotPhrases.SayAgain);
@@ -60,7 +66,7 @@ export class PlaneSpeechRecogntion {
               setTimeout(() => {
                 const spokenHeading = convertNumToText(headingStr);
                 this.talk(`${PilotPhrases.Roger}, heading ${spokenHeading}`);
-                this.selectedPlane.move.newHeading = headingNum;
+                this.plane.move.newHeading = headingNum;
               }, 500);
             }
           }
@@ -77,8 +83,8 @@ export class PlaneSpeechRecogntion {
         console.log('SPEECH STOPPED');
       };
 
-      speech.onerror = () => {
-        console.error('SPEECH ERROR');
+      speech.onerror = (err: any) => {
+        console.error('SPEECH ERROR', err);
       };
     } else {
       alert(
@@ -87,17 +93,13 @@ export class PlaneSpeechRecogntion {
     }
   }
 
-  public start() {
-    this.init.start();
-  }
-
   private talk(phrase: string) {
-    this.selectedPlane.pilotSpeech.talk(phrase);
+    this.plane.pilotSpeech.talk(phrase);
   }
 }
 
-function getEndOfCallsignIdx(words: string[]): number | null {
-  let endOfCallsignIdx: number | null = null;
+function getEndOfCallsignIdx(words: string[]): number | undefined {
+  let endOfCallsignIdx: number | undefined = undefined;
   let currentIdx = 0;
   let foundEndOfCallsign = false;
   let wordsLen = words.length;

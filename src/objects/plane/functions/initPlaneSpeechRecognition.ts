@@ -1,9 +1,10 @@
 import { PilotPhrases } from '../../../types/PilotPhrases';
+import { PlaneCarriersSpoken } from '../../../types/PlaneCarriers';
 import { convertNumToText } from '../../../utils/convertNumToText';
 import { Plane } from '../Plane';
 
 /* --------------------- Init Speech Recognition -------------------- */
-export function initPlaneSpeechRecogntion(plane: Plane) {
+export function initPlaneSpeechRecognition(plane: Plane) {
   const speech = plane.playerSpeech;
   function talk(phrase: string) {
     plane.pilotSpeech.talk(phrase);
@@ -24,7 +25,17 @@ export function initPlaneSpeechRecogntion(plane: Plane) {
         if (speech.text.length > 0) {
           // Get PLANE CALLSIGN
           const endOfCallsignIdx = getEndOfCallsignIdx(speech.text);
-          const callsign = speech.text.slice();
+          const callsignArr = speech.text.slice(0, endOfCallsignIdx);
+          const carrierName = callsignArr
+            .slice(0, callsignArr.length - 1)
+            .join(' ');
+          const carrierNum = callsignArr[callsignArr.length - 1];
+          const callsign = {
+            carrier: carrierName,
+            number: Number(carrierNum),
+            full: `${PlaneCarriersSpoken[carrierName]}${carrierNum}`,
+          };
+          console.log('Callsign:', callsign.full);
 
           // Get HEADING
           const headingPrefixIdx = speech.text.indexOf('heading');
@@ -77,8 +88,8 @@ export function initPlaneSpeechRecogntion(plane: Plane) {
   }
 }
 
-function getEndOfCallsignIdx(words: string[]): number | null {
-  let endOfCallsignIdx: number | null = null;
+function getEndOfCallsignIdx(words: string[]): number | undefined {
+  let endOfCallsignIdx: number | undefined = undefined;
   let currentIdx = 0;
   let foundEndOfCallsign = false;
   let wordsLen = words.length;

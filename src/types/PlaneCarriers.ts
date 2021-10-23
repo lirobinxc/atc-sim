@@ -3,3 +3,9 @@ export enum PlaneCarriers {
   DAL = 'Delta',
   DLH = 'Lufthansa',
 }
+
+export const PlaneCarriersSpoken: { [key: string]: string } = {
+  'air canada': 'ACA',
+  delta: 'DAL',
+  lufthansa: 'DLH',
+};

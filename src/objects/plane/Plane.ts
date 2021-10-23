@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import type { IPlaneConfig } from '../../config/PlaneConfig';
 import { PlaneSymbol } from './components/PlaneSymbol';
 import { generateCallsign, IPlaneCallsign } from '../../utils/generateCallsign';
-import { initPlaneSpeechRecogntion } from './functions/initPlaneSpeechRecognition';
+import { initPlaneSpeechRecognition } from './functions/initPlaneSpeechRecognition';
 import { PilotSpeech } from './components/PilotSpeech';
 import { PlaneDataTag } from './components/PlaneDataTag';
 import { PlaneSpeechRecogntion } from './components/PlaneSpeechRecognition';
@@ -18,7 +18,7 @@ interface IPlayerSpeech {
   init: undefined | any; // the SpeechRecognition object
   text: string[];
   isActive: boolean;
-  result: {
+  result?: {
     turnTo: 'Left' | 'Right';
     newHeading: number;
   };
@@ -39,7 +39,7 @@ export class Plane extends Phaser.GameObjects.Container {
   symbol: PlaneSymbol;
   dataTag: PlaneDataTag;
   pilotSpeech: PilotSpeech;
-  playerSpeech: PlaneSpeechRecogntion;
+  playerSpeech: IPlayerSpeech;
 
   constructor({ config, scene, x, y }: IPlaneConstructor) {
     super(scene, x, y);
@@ -60,13 +60,17 @@ export class Plane extends Phaser.GameObjects.Container {
     this.dataTag = new PlaneDataTag(this);
 
     this.pilotSpeech = new PilotSpeech(this);
-    this.playerSpeech = new PlaneSpeechRecogntion(this);
+    this.playerSpeech = {
+      init: undefined,
+      isActive: false,
+      text: [''],
+    };
 
     /* -------------------------- Setup Plane -------------------------- */
     scene.add.existing(this);
 
     /* -------------------- Setup Speech Recognition ------------------- */
-    initPlaneSpeechRecogntion(this);
+    initPlaneSpeechRecognition(this);
   }
 
   preUpdate() {

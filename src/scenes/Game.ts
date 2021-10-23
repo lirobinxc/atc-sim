@@ -14,7 +14,7 @@ export default class Game extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    const NUM_OF_PLANES = 1;
+    const NUM_OF_PLANES = 2;
     const planes: Plane[] = this.generatePlanes(NUM_OF_PLANES);
 
     // DEBUG: screen middle circle
@@ -24,7 +24,7 @@ export default class Game extends Phaser.Scene {
   generatePlanes(num: number): Plane[] {
     const planes: Plane[] = [];
     for (let i = 0; i < num; i++) {
-      planeConfig.plane.INITIAL_SPEED = Phaser.Math.Between(5, 20);
+      // planeConfig.plane.INITIAL_SPEED = Phaser.Math.Between(5, 20);
       planes.push(
         new Plane({
           config: planeConfig,

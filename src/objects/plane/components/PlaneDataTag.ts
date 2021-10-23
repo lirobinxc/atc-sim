@@ -58,8 +58,15 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
     const line2 = `${this.plane.move.altitude.toString().padStart(3, '0')}  ${
       this.plane.move.speed
     }`;
-    const line3 = `${this.plane.move.currentHeading} `;
-    this.setText([line1, line2, line3]);
+    const line3 = `${this.plane.move.currentHeading
+      .toString()
+      .padStart(3, '0')}`;
+    const PAD_LENGTH = 6;
+    this.setText([
+      line1.padEnd(PAD_LENGTH, ' '),
+      line2.padEnd(PAD_LENGTH, ' '),
+      line3.padEnd(PAD_LENGTH, ' '),
+    ]);
   }
 
   private setTextPosition() {
