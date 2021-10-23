@@ -1,4 +1,4 @@
 export enum SceneKeys {
   Preloader = 'Preloader',
-  Game = 'Game',
+  RadarScene = 'RadarScene',
 }

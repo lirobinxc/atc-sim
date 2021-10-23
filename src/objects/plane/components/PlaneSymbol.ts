@@ -4,19 +4,16 @@ import { Plane } from '../Plane';
 
 interface IPlaneSymbol {
   plane: Plane;
-  scene: Phaser.Scene;
-  x: number;
-  y: number;
 }
 
 export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
   plane: Plane;
   /* ---------------------------- Properties --------------------------- */
-  constructor({ plane, scene, x, y }: IPlaneSymbol) {
+  constructor({ plane }: IPlaneSymbol) {
     super(
-      scene,
-      x,
-      y,
+      plane.scene,
+      0,
+      0,
       plane.config.plane.SIZE,
       plane.config.plane.SIZE,
       plane.config.plane.COLOR,
@@ -26,10 +23,11 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
     /* ----------------------- Init Plane Object ----------------------- */
     this.plane = plane;
     // Add object to the scene
-    scene.add.existing(this);
+    // NOTE: Not necessary because its in a container that will add it
+    // this.scene.add.existing(this);
 
     // Enable physics on the Plane object
-    scene.physics.add.existing(this);
+    this.scene.physics.add.existing(this);
 
     // Config the physics body
     const body = this.body as Phaser.Physics.Arcade.Body;

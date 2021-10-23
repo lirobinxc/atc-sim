@@ -1,0 +1,6 @@
+#JSGF V1.0 ISO8859-5 en;
+grammar atc;
+public <instruction> = <callsign> (<number>)+ <command> (<number>)+;
+public <callsign> = bravo | charlie | delta | echo | golf | hotel;
+public <number> = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0
+public <command> = turn left heading | turn right heading | climb to | descend to

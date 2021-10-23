@@ -1,24 +1,9 @@
-export interface IPlaneConfig {
-  plane: {
-    INITIAL_SPEED: number;
-    COLOR: number;
-    COLOR_SELECTED: number;
-    SIZE: number;
-  };
-  dataTag: {
-    FONT_COLOR: string;
-    LINE_COLOR: number;
-    TEXT_OFFSET_X: number;
-    TEXT_OFFSET_Y: number;
-  };
-  pilotSpeech: {
-    TEXT_OFFSET_Y: number;
-  };
-}
+import { CallsignType } from '../utils/generateCallsign';
 
 export const planeConfig = {
   plane: {
-    INITIAL_SPEED: 5,
+    CALLSIGN_TYPE: CallsignType.Casual,
+    INITIAL_SPEED: 0,
     COLOR: 0xa0f078,
     COLOR_SELECTED: 0xcc66ff,
     SIZE: 10,
@@ -33,3 +18,6 @@ export const planeConfig = {
     TEXT_OFFSET_Y: 20,
   },
 };
+
+type PlaneConfigType = typeof planeConfig;
+export interface IPlaneConfig extends PlaneConfigType {}

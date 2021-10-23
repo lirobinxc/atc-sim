@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 // Types
 import { SceneKeys } from '../types/SceneKeys';
-import { DomKeys } from '../types/DomKeys';
 
-export default class Preloader extends Phaser.Scene {
+export class Preloader extends Phaser.Scene {
   constructor() {
     super(SceneKeys.Preloader);
   }
@@ -11,6 +10,6 @@ export default class Preloader extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.scene.start(SceneKeys.Game);
+    this.scene.start(SceneKeys.RadarScene);
   }
 }

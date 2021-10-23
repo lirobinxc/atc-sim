@@ -1,4 +1,7 @@
-import { PlaneCarriers } from '../types/PlaneCarriers';
+import {
+  PlaneCarriersAuthentic,
+  PlaneCarriersCasual,
+} from '../types/PlaneCarriers';
 import { convertCallsignToSpoken } from './convertCallsignToSpoken';
 
 export interface IPlaneCallsign {
@@ -8,10 +11,19 @@ export interface IPlaneCallsign {
   spoken: string;
 }
 
-export function generateCallsign(): IPlaneCallsign {
-  const carrierCodes = Object.keys(PlaneCarriers);
+export enum CallsignType {
+  Casual = 'Casual',
+  Authentic = 'Authentic',
+}
+
+export function generateCallsign(type: CallsignType): IPlaneCallsign {
+  let carrierCodes;
+  if (type === CallsignType.Authentic) {
+    carrierCodes = Object.keys(PlaneCarriersAuthentic);
+  } else carrierCodes = Object.keys(PlaneCarriersCasual);
+
   const carrier = carrierCodes[Phaser.Math.Between(0, carrierCodes.length - 1)];
-  const number = Phaser.Math.Between(10, 999);
+  const number = Phaser.Math.Between(100, 100);
   const callsignData = {
     carrier,
     number,

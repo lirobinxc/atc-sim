@@ -1,11 +1,15 @@
 import Phaser from 'phaser';
 import type { IPlaneConfig } from '../../config/PlaneConfig';
 import { PlaneSymbol } from './components/PlaneSymbol';
-import { generateCallsign, IPlaneCallsign } from '../../utils/generateCallsign';
-import { initPlaneSpeechRecognition } from './functions/initPlaneSpeechRecognition';
+import {
+  CallsignType,
+  generateCallsign,
+  IPlaneCallsign,
+} from '../../utils/generateCallsign';
 import { PilotSpeech } from './components/PilotSpeech';
 import { PlaneDataTag } from './components/PlaneDataTag';
-import { PlaneSpeechRecogntion } from './components/PlaneSpeechRecognition';
+import { RadarScene } from '../../scenes/RadarScene';
+import { PlaneDataTagLine } from './components/PlaneDataTagLine';
 
 interface IPlaneConstructor {
   config: IPlaneConfig;
@@ -36,17 +40,18 @@ export class Plane extends Phaser.GameObjects.Container {
     speed: number;
     altitude: number;
   };
+  // Components
   symbol: PlaneSymbol;
   dataTag: PlaneDataTag;
+  dataTagLine: PlaneDataTagLine;
   pilotSpeech: PilotSpeech;
-  playerSpeech: IPlayerSpeech;
 
   constructor({ config, scene, x, y }: IPlaneConstructor) {
     super(scene, x, y);
     /* --------------------------- Init Props -------------------------- */
     this.config = config;
     this.scene = scene;
-    this.callsign = generateCallsign();
+    this.callsign = generateCallsign(config.plane.CALLSIGN_TYPE);
     this.status = { isSelected: false, isExecutingCommand: false };
     const initHeading = Phaser.Math.Between(1, 360);
     this.move = {
@@ -56,48 +61,16 @@ export class Plane extends Phaser.GameObjects.Container {
       turnTo: 'Left',
       altitude: 180,
     };
-    this.symbol = new PlaneSymbol({ plane: this, scene, x, y });
+    this.symbol = new PlaneSymbol({ plane: this });
     this.dataTag = new PlaneDataTag(this);
+    this.dataTagLine = new PlaneDataTagLine(this);
 
     this.pilotSpeech = new PilotSpeech(this);
-    this.playerSpeech = {
-      init: undefined,
-      isActive: false,
-      text: [''],
-    };
 
     /* -------------------------- Setup Plane -------------------------- */
+    this.add([this.symbol, this.dataTag, this.dataTagLine, this.pilotSpeech]);
     scene.add.existing(this);
-
-    /* -------------------- Setup Speech Recognition ------------------- */
-    initPlaneSpeechRecognition(this);
   }
 
-  preUpdate() {
-    this.initPressToTalk();
-  }
-
-  private initPressToTalk() {
-    const keyCodes = Phaser.Input.Keyboard.KeyCodes;
-    const spaceKey = this.scene.input.keyboard.addKey(keyCodes.SPACE);
-    if (spaceKey.isDown) {
-      if (!this.playerSpeech.isActive) this.playerSpeech.init.start();
-    }
-    if (spaceKey.isUp) {
-      if (this.playerSpeech.isActive) this.playerSpeech.init.stop();
-    }
-  }
-
-  /** Update Plane movement based on speech result. */
-  // private processPlayerSpeechResult() {
-  //   const result = this.playerSpeech.result;
-  //   const current = this.move;
-
-  //   if (current.turnTo !== result.turnTo) {
-  //     current.turnTo = result.turnTo;
-  //   }
-  //   if (current.newHeading !== result.newHeading) {
-  //     current.newHeading = result.newHeading;
-  //   }
-  // }
+  preUpdate() {}
 }
