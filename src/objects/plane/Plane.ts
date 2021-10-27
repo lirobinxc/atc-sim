@@ -8,8 +8,8 @@ import {
 } from '../../utils/generateCallsign';
 import { PilotSpeech } from './components/PilotSpeech';
 import { PlaneDataTag } from './components/PlaneDataTag';
-import { RadarScene } from '../../scenes/RadarScene';
 import { PlaneDataTagLine } from './components/PlaneDataTagLine';
+import { PlaneSymbolHeadingLine } from './components/PlaneSymbolHeadingLine';
 
 interface IPlaneConstructor {
   config: IPlaneConfig;
@@ -17,16 +17,6 @@ interface IPlaneConstructor {
   x: number;
   y: number;
 }
-
-// interface IPlayerSpeech {
-//   init: undefined | any; // the SpeechRecognition object
-//   text: string[];
-//   isActive: boolean;
-//   result?: {
-//     turnTo: 'Left' | 'Right';
-//     newHeading: number;
-//   };
-// }
 
 export class Plane extends Phaser.GameObjects.Group {
   config: IPlaneConfig;
@@ -42,6 +32,7 @@ export class Plane extends Phaser.GameObjects.Group {
   };
   // Components
   symbol: PlaneSymbol;
+  symbolHeadingLine: PlaneSymbolHeadingLine;
   dataTag: PlaneDataTag;
   dataTagLine: PlaneDataTagLine;
   pilotSpeech: PilotSpeech;
@@ -62,14 +53,15 @@ export class Plane extends Phaser.GameObjects.Group {
       altitude: 180,
     };
     this.symbol = new PlaneSymbol({ plane: this, x, y });
+    this.symbolHeadingLine = new PlaneSymbolHeadingLine(this);
     this.dataTag = new PlaneDataTag(this);
     this.dataTagLine = new PlaneDataTagLine(this);
-
     this.pilotSpeech = new PilotSpeech(this);
 
     /* -------------------------- Setup Plane -------------------------- */
     const groupChildren = [
       this.symbol,
+      // this.symbolHeadingLine,
       this.dataTag,
       this.dataTagLine,
       this.pilotSpeech,

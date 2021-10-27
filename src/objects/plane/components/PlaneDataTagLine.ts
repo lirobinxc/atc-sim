@@ -6,22 +6,21 @@ export class PlaneDataTagLine extends Phaser.GameObjects.Line {
   private plane: Plane;
 
   constructor(plane: Plane) {
-    super(plane.scene);
+    super(plane.scene, 0, 0, 0, 0, 0, 0, 0xffffff);
 
     this.plane = plane;
 
     // Add object to the scene
     plane.scene.add.existing(this);
-    plane.scene.physics.add.existing(this);
 
-    this.setStrokeStyle(0.5, 0xffffff)
+    this.setLineWidth(0.7)
+      .setOrigin(0, 0)
       .setTo(
         this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.x,
         this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.y,
         this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.x,
         this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.y
-      )
-      .setOrigin(0, 0);
+      );
   }
 
   preUpdate() {
