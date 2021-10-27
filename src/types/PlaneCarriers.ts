@@ -11,15 +11,23 @@ export const PlaneCarriersAuthenticSpoken: { [key: string]: string } = {
 };
 
 export enum PlaneCarriersCasual {
-  Bravo = 'Bravo',
-  Charlie = 'Charlie',
   Delta = 'Delta',
-  // Echo = 'Echo',
+  Echo = 'Echo',
+  Golf = 'Golf',
+  Hotel = 'Hotel',
+  Oscar = 'Oscar',
+  Romeo = 'Romeo',
+  Tango = 'Tango',
+  Zebra = 'Zebra',
 }
 
 export const PlaneCarriersCasualSpoken: { [key: string]: string } = {
-  bravo: 'Bravo',
-  charlie: 'Charlie',
   delta: 'Delta',
   echo: 'Echo',
+  golf: 'Golf',
+  hotel: 'Hotel',
+  oscar: 'Oscar',
+  romeo: 'Romeo',
+  tango: 'Tango',
+  zebra: 'Zebra',
 };

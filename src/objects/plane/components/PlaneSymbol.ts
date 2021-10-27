@@ -10,6 +10,7 @@ interface IPlaneSymbol {
 
 export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
   plane: Plane;
+  test: { headingLine: Phaser.GameObjects.Line };
   /* ---------------------------- Properties --------------------------- */
   constructor({ plane, x, y }: IPlaneSymbol) {
     super(

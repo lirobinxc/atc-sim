@@ -14,6 +14,7 @@ export class RadarScene extends Phaser.Scene {
   public speech: any;
   public speechIsActive!: boolean;
   private existingPlaneNames!: { [key: string]: true };
+  private existingPlanePositions!: Phaser.Math.Vector2[];
 
   constructor() {
     super(SceneKeys.RadarScene);
@@ -29,7 +30,7 @@ export class RadarScene extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    const NUM_OF_PLANES = 1;
+    const NUM_OF_PLANES = 4;
     const planes: Plane[] = this.generatePlanes(NUM_OF_PLANES);
 
     /* -------------------- Init Speech Recognition -------------------- */
@@ -44,24 +45,55 @@ export class RadarScene extends Phaser.Scene {
   generatePlanes(num: number): Plane[] {
     const planes: Plane[] = [];
     this.existingPlaneNames = {};
+    this.existingPlanePositions = [];
+    let planeGenSuccess = true;
 
     for (let i = 0; i < num; i++) {
       // planeConfig.plane.INITIAL_SPEED = Phaser.Math.Between(5, 20);
       const newPlane = new Plane({
         config: planeConfig,
         scene: this,
-        x: this.scale.width * 0.5,
-        y: this.scale.height * 0.5,
+        x: this.scale.width * Phaser.Math.FloatBetween(0.2, 0.8),
+        y: this.scale.height * Phaser.Math.FloatBetween(0.2, 0.8),
       });
 
-      if (this.existingPlaneNames[newPlane.callsign.full]) {
-        newPlane.destroy(true);
-        continue;
+      // Regenerate the plane's callsign if it already exists
+      const maxNumOfCallsignRegens = 10;
+      let counterOfNameRegenAttempts = 0;
+
+      while (this.existingPlaneNames[newPlane.callsign.full]) {
+        if (counterOfNameRegenAttempts > maxNumOfCallsignRegens) {
+          planeGenSuccess = false;
+          break;
+        }
+        newPlane.regenerateCallsign();
+        counterOfNameRegenAttempts++;
       }
 
-      this.existingPlaneNames[newPlane.callsign.full] = true;
-      planes.push(newPlane);
+      // Regnerate plane if it's too close to another
+      const newPlanePosition = newPlane.symbol.getCenter();
+      const isNewPlaneTooClose = this.existingPlanePositions.some(
+        (existingPlanePosition) => {
+          return (
+            Phaser.Math.Distance.BetweenPoints(
+              newPlanePosition,
+              existingPlanePosition
+            ) < 100
+          );
+        }
+      );
+      if (isNewPlaneTooClose) planeGenSuccess = false;
+
+      // Push a successful generated plane to the Plane[]
+      if (planeGenSuccess) {
+        this.existingPlaneNames[newPlane.callsign.full] = true;
+        this.existingPlanePositions.push(newPlane.symbol.getCenter());
+        planes.push(newPlane);
+      } else {
+        newPlane.destroy(true);
+      }
     }
+    console.log(this.existingPlanePositions);
 
     return planes;
   }

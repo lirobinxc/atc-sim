@@ -18,15 +18,15 @@ interface IPlaneConstructor {
   y: number;
 }
 
-interface IPlayerSpeech {
-  init: undefined | any; // the SpeechRecognition object
-  text: string[];
-  isActive: boolean;
-  result?: {
-    turnTo: 'Left' | 'Right';
-    newHeading: number;
-  };
-}
+// interface IPlayerSpeech {
+//   init: undefined | any; // the SpeechRecognition object
+//   text: string[];
+//   isActive: boolean;
+//   result?: {
+//     turnTo: 'Left' | 'Right';
+//     newHeading: number;
+//   };
+// }
 
 export class Plane extends Phaser.GameObjects.Group {
   config: IPlaneConfig;
@@ -77,5 +77,8 @@ export class Plane extends Phaser.GameObjects.Group {
     groupChildren.forEach((child) => this.add(child));
   }
 
-  preUpdate() {}
+  /** Regenerates the plane's callsign. */
+  regenerateCallsign() {
+    this.callsign = generateCallsign(this.config.plane.CALLSIGN_TYPE);
+  }
 }
