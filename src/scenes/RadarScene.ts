@@ -4,7 +4,6 @@ import {
   IRadarSceneConfig,
   radarSceneConfig,
 } from '../config/RadarSceneConfig';
-import { PlaneSymbol } from '../objects/plane/components/PlaneSymbol';
 import { initPlaneSpeechRecognition } from '../objects/plane/functions/initPlaneSpeechRecognition';
 import { Plane } from '../objects/plane/Plane';
 // Types
@@ -14,6 +13,7 @@ export class RadarScene extends Phaser.Scene {
   public config!: IRadarSceneConfig;
   public speech: any;
   public speechIsActive!: boolean;
+  private existingPlaneNames!: { [key: string]: true };
 
   constructor() {
     super(SceneKeys.RadarScene);
@@ -43,7 +43,7 @@ export class RadarScene extends Phaser.Scene {
 
   generatePlanes(num: number): Plane[] {
     const planes: Plane[] = [];
-    const existingPlaneNames: { [key: string]: true } = {};
+    this.existingPlaneNames = {};
 
     for (let i = 0; i < num; i++) {
       // planeConfig.plane.INITIAL_SPEED = Phaser.Math.Between(5, 20);
@@ -54,14 +54,12 @@ export class RadarScene extends Phaser.Scene {
         y: this.scale.height * 0.5,
       });
 
-      // newPlane.destroy();
+      if (this.existingPlaneNames[newPlane.callsign.full]) {
+        newPlane.destroy(true);
+        continue;
+      }
 
-      // if (existingPlaneNames[newPlane.callsign.full]) {
-      //   newPlane.destroy();
-      //   continue;
-      // }
-
-      existingPlaneNames[newPlane.callsign.full] = true;
+      this.existingPlaneNames[newPlane.callsign.full] = true;
       planes.push(newPlane);
     }
 

@@ -17,10 +17,11 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
     // Init properties
     this.plane = plane;
     this.position = PlaneDataTagPosition.BottomRight;
-    this.setText([this.plane.callsign.full]);
+    this.setText([this.plane.callsign.full, '', '']);
 
     // Add object to the scene
     plane.scene.add.existing(this);
+    plane.scene.physics.add.existing(this);
 
     // Setup
     this.setOrigin(0.5, 0.5);

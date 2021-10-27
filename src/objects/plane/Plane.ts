@@ -28,7 +28,7 @@ interface IPlayerSpeech {
   };
 }
 
-export class Plane extends Phaser.GameObjects.Container {
+export class Plane extends Phaser.GameObjects.Group {
   config: IPlaneConfig;
   scene: Phaser.Scene;
   callsign: IPlaneCallsign;
@@ -47,7 +47,7 @@ export class Plane extends Phaser.GameObjects.Container {
   pilotSpeech: PilotSpeech;
 
   constructor({ config, scene, x, y }: IPlaneConstructor) {
-    super(scene, x, y);
+    super(scene);
     /* --------------------------- Init Props -------------------------- */
     this.config = config;
     this.scene = scene;
@@ -61,15 +61,20 @@ export class Plane extends Phaser.GameObjects.Container {
       turnTo: 'Left',
       altitude: 180,
     };
-    this.symbol = new PlaneSymbol({ plane: this });
+    this.symbol = new PlaneSymbol({ plane: this, x, y });
     this.dataTag = new PlaneDataTag(this);
     this.dataTagLine = new PlaneDataTagLine(this);
 
     this.pilotSpeech = new PilotSpeech(this);
 
     /* -------------------------- Setup Plane -------------------------- */
-    this.add([this.symbol, this.dataTag, this.dataTagLine, this.pilotSpeech]);
-    scene.add.existing(this);
+    const groupChildren = [
+      this.symbol,
+      this.dataTag,
+      this.dataTagLine,
+      this.pilotSpeech,
+    ];
+    groupChildren.forEach((child) => this.add(child));
   }
 
   preUpdate() {}

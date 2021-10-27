@@ -6,41 +6,51 @@ export class PlaneDataTagLine extends Phaser.GameObjects.Line {
   private plane: Plane;
 
   constructor(plane: Plane) {
-    super(plane.scene, 0, 0);
+    super(plane.scene);
 
     this.plane = plane;
 
-    this.setTo(
-      this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.x,
-      this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.y,
-      this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.x,
-      this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.y
-    )
-      .setOrigin(0, 0)
-      .setLineWidth(0.7);
+    // Add object to the scene
+    plane.scene.add.existing(this);
+    plane.scene.physics.add.existing(this);
+
+    this.setStrokeStyle(0.5, 0xffffff)
+      .setTo(
+        this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.x,
+        this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.y,
+        this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.x,
+        this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.y
+      )
+      .setOrigin(0, 0);
   }
 
   preUpdate() {
     this.setLinePosition();
+    // console.log(
+    //   this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.x,
+    //   this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.y,
+    //   this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.x,
+    //   this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.y
+    // );
   }
 
   private getLinePlacement(position: PlaneDataTagPosition) {
     const getCorners = {
       [PlaneDataTagPosition.TopLeft]: {
         getPlaneCorner: this.plane.symbol.getTopLeft(),
-        getDataCorner: this.getBottomRight(),
+        getDataCorner: this.plane.dataTag.getBottomRight(),
       },
       [PlaneDataTagPosition.TopRight]: {
         getPlaneCorner: this.plane.symbol.getTopRight(),
-        getDataCorner: this.getBottomLeft(),
+        getDataCorner: this.plane.dataTag.getBottomLeft(),
       },
       [PlaneDataTagPosition.BottomLeft]: {
         getPlaneCorner: this.plane.symbol.getBottomLeft(),
-        getDataCorner: this.getTopRight(),
+        getDataCorner: this.plane.dataTag.getTopRight(),
       },
       [PlaneDataTagPosition.BottomRight]: {
         getPlaneCorner: this.plane.symbol.getBottomRight(),
-        getDataCorner: this.getTopLeft(),
+        getDataCorner: this.plane.dataTag.getTopLeft(),
       },
     };
     const linePlacement = {
