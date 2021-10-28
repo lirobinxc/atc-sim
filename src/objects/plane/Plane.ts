@@ -9,7 +9,7 @@ import {
 import { PilotSpeech } from './components/PilotSpeech';
 import { PlaneDataTag } from './components/PlaneDataTag';
 import { PlaneDataTagLine } from './components/PlaneDataTagLine';
-import { PlaneSymbolHeadingLine } from './components/PlaneSymbolHeadingLine';
+import { PlaneHistoryTrail } from './components/PlaneHistoryTrail';
 
 interface IPlaneConstructor {
   config: IPlaneConfig;
@@ -32,7 +32,7 @@ export class Plane extends Phaser.GameObjects.Group {
   };
   // Components
   symbol: PlaneSymbol;
-  symbolHeadingLine: PlaneSymbolHeadingLine;
+  historyTrail: PlaneHistoryTrail;
   dataTag: PlaneDataTag;
   dataTagLine: PlaneDataTagLine;
   pilotSpeech: PilotSpeech;
@@ -53,7 +53,7 @@ export class Plane extends Phaser.GameObjects.Group {
       altitude: 180,
     };
     this.symbol = new PlaneSymbol({ plane: this, x, y });
-    this.symbolHeadingLine = new PlaneSymbolHeadingLine(this);
+    this.historyTrail = new PlaneHistoryTrail(this);
     this.dataTag = new PlaneDataTag(this);
     this.dataTagLine = new PlaneDataTagLine(this);
     this.pilotSpeech = new PilotSpeech(this);
@@ -61,7 +61,7 @@ export class Plane extends Phaser.GameObjects.Group {
     /* -------------------------- Setup Plane -------------------------- */
     const groupChildren = [
       this.symbol,
-      // this.symbolHeadingLine,
+      this.historyTrail,
       this.dataTag,
       this.dataTagLine,
       this.pilotSpeech,

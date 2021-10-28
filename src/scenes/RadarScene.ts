@@ -30,7 +30,7 @@ export class RadarScene extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    const NUM_OF_PLANES = 4;
+    const NUM_OF_PLANES = 1;
     const planes: Plane[] = this.generatePlanes(NUM_OF_PLANES);
 
     /* -------------------- Init Speech Recognition -------------------- */
@@ -93,7 +93,6 @@ export class RadarScene extends Phaser.Scene {
         newPlane.destroy(true);
       }
     }
-    console.log(this.existingPlanePositions);
 
     return planes;
   }

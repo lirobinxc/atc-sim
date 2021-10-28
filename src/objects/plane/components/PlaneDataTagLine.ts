@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Plane } from '../Plane';
-import { PlaneDataTagPosition } from './PlaneDataTag';
+import { Quadrant } from './PlaneDataTag';
 
 export class PlaneDataTagLine extends Phaser.GameObjects.Line {
   private plane: Plane;
@@ -16,10 +16,10 @@ export class PlaneDataTagLine extends Phaser.GameObjects.Line {
     this.setLineWidth(0.7)
       .setOrigin(0, 0)
       .setTo(
-        this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.x,
-        this.getLinePlacement(PlaneDataTagPosition.BottomRight).planeCorner.y,
-        this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.x,
-        this.getLinePlacement(PlaneDataTagPosition.BottomRight).dataCorner.y
+        this.getLinePlacement(Quadrant.BottomRight).planeCorner.x,
+        this.getLinePlacement(Quadrant.BottomRight).planeCorner.y,
+        this.getLinePlacement(Quadrant.BottomRight).dataCorner.x,
+        this.getLinePlacement(Quadrant.BottomRight).dataCorner.y
       );
   }
 
@@ -33,38 +33,38 @@ export class PlaneDataTagLine extends Phaser.GameObjects.Line {
     // );
   }
 
-  private getLinePlacement(position: PlaneDataTagPosition) {
+  private getLinePlacement(quadrant: Quadrant) {
     const getCorners = {
-      [PlaneDataTagPosition.TopLeft]: {
+      [Quadrant.TopLeft]: {
         getPlaneCorner: this.plane.symbol.getTopLeft(),
         getDataCorner: this.plane.dataTag.getBottomRight(),
       },
-      [PlaneDataTagPosition.TopRight]: {
+      [Quadrant.TopRight]: {
         getPlaneCorner: this.plane.symbol.getTopRight(),
         getDataCorner: this.plane.dataTag.getBottomLeft(),
       },
-      [PlaneDataTagPosition.BottomLeft]: {
+      [Quadrant.BottomLeft]: {
         getPlaneCorner: this.plane.symbol.getBottomLeft(),
         getDataCorner: this.plane.dataTag.getTopRight(),
       },
-      [PlaneDataTagPosition.BottomRight]: {
+      [Quadrant.BottomRight]: {
         getPlaneCorner: this.plane.symbol.getBottomRight(),
         getDataCorner: this.plane.dataTag.getTopLeft(),
       },
     };
     const linePlacement = {
-      planeCorner: getCorners[position].getPlaneCorner,
-      dataCorner: getCorners[position].getDataCorner,
+      planeCorner: getCorners[quadrant].getPlaneCorner,
+      dataCorner: getCorners[quadrant].getDataCorner,
     };
     return linePlacement;
   }
 
   private setLinePosition() {
     this.setTo(
-      this.getLinePlacement(this.plane.dataTag.position).planeCorner.x,
-      this.getLinePlacement(this.plane.dataTag.position).planeCorner.y,
-      this.getLinePlacement(this.plane.dataTag.position).dataCorner.x,
-      this.getLinePlacement(this.plane.dataTag.position).dataCorner.y
+      this.getLinePlacement(this.plane.dataTag.quadrant).planeCorner.x,
+      this.getLinePlacement(this.plane.dataTag.quadrant).planeCorner.y,
+      this.getLinePlacement(this.plane.dataTag.quadrant).dataCorner.x,
+      this.getLinePlacement(this.plane.dataTag.quadrant).dataCorner.y
     );
   }
 }

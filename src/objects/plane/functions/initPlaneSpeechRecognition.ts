@@ -36,7 +36,6 @@ export function initPlaneSpeechRecognition(scene: RadarScene, planes: Plane[]) {
       let speechRecognitionList = new SpeechGrammarList();
       speechRecognitionList.addFromString(grammar);
       speech.grammars = speechRecognitionList;
-      console.log(speechRecognitionList);
 
       speech.onresult = (event: any) => {
         const transcript: string = event.results[0][0].transcript;

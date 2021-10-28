@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Plane } from '../Plane';
-import { PlaneDataTagPosition } from './PlaneDataTag';
+import { Quadrant } from './PlaneDataTag';
 
 export class PilotSpeech extends Phaser.GameObjects.Text {
   private plane: Plane;
@@ -30,8 +30,8 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
   private setTextPosition() {
     // Moves text position above/below depending on where the PlaneDataTag is
     if (
-      this.plane.dataTag.position === PlaneDataTagPosition.BottomLeft ||
-      this.plane.dataTag.position === PlaneDataTagPosition.BottomRight
+      this.plane.dataTag.quadrant === Quadrant.BottomLeft ||
+      this.plane.dataTag.quadrant === Quadrant.BottomRight
     ) {
       this.position = 'Above';
     } else {

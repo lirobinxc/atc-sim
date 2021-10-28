@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Plane } from '../Plane';
 
-export enum PlaneDataTagPosition {
+export enum Quadrant {
   TopLeft = 'topLeft',
   TopRight = 'topRight',
   BottomLeft = 'bottomLeft',
@@ -10,13 +10,15 @@ export enum PlaneDataTagPosition {
 
 export class PlaneDataTag extends Phaser.GameObjects.Text {
   private plane: Plane;
-  public position: PlaneDataTagPosition;
+  public quadrant: Quadrant;
+  public autoSetQuadrant: boolean;
 
   constructor(plane: Plane) {
     super(plane.scene, plane.symbol.x, plane.symbol.y, '', {});
     // Init properties
     this.plane = plane;
-    this.position = PlaneDataTagPosition.BottomRight;
+    this.quadrant = Quadrant.BottomRight;
+    this.autoSetQuadrant = true;
     this.setText([this.plane.callsign.full, '', '']);
 
     // Add object to the scene
@@ -29,16 +31,18 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
     /* -------------------------- Init Events -------------------------- */
     this.setInteractive();
     this.on('pointerdown', () => {
-      this.cycleTextPosition();
+      this.autoSetQuadrant = false;
+      this.cycleTagPosition();
     });
   }
 
   preUpdate() {
-    this.setTextPosition();
-    this.updateDataTag();
+    this.updateTagText();
+    this.updateTagPosition();
+    this.updateTagQuadrantBasedOnHistoryTrail();
   }
 
-  private updateDataTag() {
+  private updateTagText() {
     const line1 = this.plane.callsign.full;
     const line2 = `${this.plane.move.altitude.toString().padStart(3, '0')}  ${
       this.plane.move.speed
@@ -46,6 +50,7 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
     const line3 = `${this.plane.move.currentHeading
       .toString()
       .padStart(3, '0')}`;
+
     const PAD_LENGTH = 6;
     this.setText([
       line1.padEnd(PAD_LENGTH, ' '),
@@ -54,42 +59,62 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
     ]);
   }
 
-  private setTextPosition() {
-    const offset = {
-      [PlaneDataTagPosition.TopLeft]: {
+  private updateTagPosition() {
+    // position is based on the current this.quadrant property
+    const dataTagOffset = {
+      [Quadrant.TopLeft]: {
         x: -this.plane.config.dataTag.TEXT_OFFSET_X,
         y: -this.plane.config.dataTag.TEXT_OFFSET_Y,
       },
-      [PlaneDataTagPosition.TopRight]: {
+      [Quadrant.TopRight]: {
         x: this.plane.config.dataTag.TEXT_OFFSET_X,
         y: -this.plane.config.dataTag.TEXT_OFFSET_Y,
       },
-      [PlaneDataTagPosition.BottomLeft]: {
+      [Quadrant.BottomLeft]: {
         x: -this.plane.config.dataTag.TEXT_OFFSET_X,
         y: this.plane.config.dataTag.TEXT_OFFSET_Y,
       },
-      [PlaneDataTagPosition.BottomRight]: {
+      [Quadrant.BottomRight]: {
         x: this.plane.config.dataTag.TEXT_OFFSET_X,
         y: this.plane.config.dataTag.TEXT_OFFSET_Y,
       },
     };
 
-    this.setX(this.plane.symbol.x + offset[this.position].x);
-    this.setY(this.plane.symbol.y + offset[this.position].y);
+    this.setX(this.plane.symbol.x + dataTagOffset[this.quadrant].x);
+    this.setY(this.plane.symbol.y + dataTagOffset[this.quadrant].y);
   }
 
-  private cycleTextPosition() {
-    switch (this.position) {
-      case PlaneDataTagPosition.TopLeft:
-        return (this.position = PlaneDataTagPosition.TopRight);
-      case PlaneDataTagPosition.TopRight:
-        return (this.position = PlaneDataTagPosition.BottomRight);
-      case PlaneDataTagPosition.BottomRight:
-        return (this.position = PlaneDataTagPosition.BottomLeft);
-      case PlaneDataTagPosition.BottomLeft:
-        return (this.position = PlaneDataTagPosition.TopLeft);
+  private updateTagQuadrantBasedOnHistoryTrail() {
+    if (!this.autoSetQuadrant) return;
+
+    const historyTrail = this.plane.historyTrail;
+    if (!historyTrail) return;
+
+    const historyTrailQuadrant = historyTrail.getTrailQuadrant();
+    if (historyTrailQuadrant === Quadrant.TopLeft)
+      this.quadrant = Quadrant.BottomRight;
+    if (historyTrailQuadrant === Quadrant.TopRight)
+      this.quadrant = Quadrant.BottomLeft;
+    if (historyTrailQuadrant === Quadrant.BottomLeft)
+      this.quadrant = Quadrant.TopRight;
+    if (historyTrailQuadrant === Quadrant.BottomRight)
+      this.quadrant = Quadrant.TopLeft;
+
+    this.autoSetQuadrant = false;
+  }
+
+  private cycleTagPosition() {
+    switch (this.quadrant) {
+      case Quadrant.TopLeft:
+        return (this.quadrant = Quadrant.TopRight);
+      case Quadrant.TopRight:
+        return (this.quadrant = Quadrant.BottomRight);
+      case Quadrant.BottomRight:
+        return (this.quadrant = Quadrant.BottomLeft);
+      case Quadrant.BottomLeft:
+        return (this.quadrant = Quadrant.TopLeft);
       default:
-        return (this.position = PlaneDataTagPosition.BottomRight);
+        return (this.quadrant = Quadrant.BottomRight);
     }
   }
 }
