@@ -64,7 +64,7 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
 
       if (this.pilotVoice) {
         utterThis.voice = this.pilotVoice;
-        utterThis.rate = 1.3;
+        utterThis.rate = 1.2;
       }
 
       this.speechSynth?.speak(utterThis);
