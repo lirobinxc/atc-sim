@@ -2,8 +2,8 @@ import { CallsignType } from '../utils/generateCallsign';
 
 export const planeConfig = {
   plane: {
-    CALLSIGN_TYPE: CallsignType.Casual,
-    INITIAL_SPEED: 10,
+    CALLSIGN_TYPE: CallsignType.Authentic,
+    INITIAL_SPEED: { MIN: 2, MAX: 8 },
     COLOR: 0xa0f078,
     COLOR_SELECTED: 0xcc66ff,
     SIZE: 10,

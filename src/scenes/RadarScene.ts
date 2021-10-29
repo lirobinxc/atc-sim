@@ -74,7 +74,6 @@ export class RadarScene extends Phaser.Scene {
     let planeGenSuccess = true;
 
     for (let i = 0; i < num; i++) {
-      planeConfig.plane.INITIAL_SPEED = Phaser.Math.Between(5, 20);
       const newPlane = new Plane({
         config: planeConfig,
         scene: this,
@@ -103,7 +102,7 @@ export class RadarScene extends Phaser.Scene {
             Phaser.Math.Distance.BetweenPoints(
               newPlanePosition,
               existingPlanePosition
-            ) < 100
+            ) < 80
           );
         }
       );

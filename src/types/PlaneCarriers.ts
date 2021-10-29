@@ -13,7 +13,6 @@ export const PlaneCarriersAuthenticSpoken: { [key: string]: string } = {
 export enum PlaneCarriersCasual {
   Delta = 'Delta',
   Echo = 'Echo',
-  Golf = 'Golf',
   Oscar = 'Oscar',
   Romeo = 'Romeo',
   Tango = 'Tango',
@@ -24,7 +23,6 @@ export enum PlaneCarriersCasual {
 export const PlaneCarriersCasualSpoken: { [key: string]: string } = {
   delta: 'Delta',
   echo: 'Echo',
-  golf: 'Golf',
   oscar: 'Oscar',
   romeo: 'Romeo',
   tango: 'Tango',

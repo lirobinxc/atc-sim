@@ -48,7 +48,10 @@ export class Plane extends Phaser.GameObjects.Group {
     this.move = {
       currentHeading: initHeading,
       newHeading: initHeading,
-      speed: config.plane.INITIAL_SPEED,
+      speed: Phaser.Math.Between(
+        config.plane.INITIAL_SPEED.MIN,
+        config.plane.INITIAL_SPEED.MAX
+      ),
       turnTo: 'Left',
       altitude: 180,
     };
