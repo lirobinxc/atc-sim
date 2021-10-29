@@ -7,6 +7,7 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
   public position: 'Above' | 'Below';
   public isTalking: boolean;
   public speechSynth: undefined | SpeechSynthesis;
+  private pilotVoice: undefined | SpeechSynthesisVoice;
 
   constructor(plane: Plane) {
     super(plane.scene, plane.symbol.x, plane.symbol.y, '', {});
@@ -25,6 +26,7 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
 
   preUpdate() {
     this.setTextPosition();
+    this.setPilotVoice();
   }
 
   private setTextPosition() {
@@ -53,16 +55,41 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
   }
 
   public talk(phrase: string) {
+    if (!this.speechSynth) return;
+
     if (!this.isTalking) {
       this.isTalking = true;
       this.text = phrase;
       const utterThis = new SpeechSynthesisUtterance(this.text);
+
+      if (this.pilotVoice) {
+        utterThis.voice = this.pilotVoice;
+        utterThis.rate = 1.3;
+      }
+
       this.speechSynth?.speak(utterThis);
 
       setTimeout(() => {
         this.text = '';
         this.isTalking = false;
       }, phrase.length * 120);
+    }
+  }
+
+  private setPilotVoice() {
+    if (!this.speechSynth) return;
+    if (!this.pilotVoice) {
+      const voices = this.speechSynth
+        .getVoices()
+        .filter(
+          (voice) =>
+            voice.lang[0] === 'e' &&
+            voice.lang[1] === 'n' &&
+            voice.name !== 'Google US English'
+        );
+      console.log(voices);
+
+      this.pilotVoice = voices[Phaser.Math.Between(0, voices.length - 1)];
     }
   }
 }

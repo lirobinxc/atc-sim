@@ -12,7 +12,11 @@ import { SceneKeys } from '../types/SceneKeys';
 
 export class RadarScene extends Phaser.Scene {
   public config!: IRadarSceneConfig;
-  public gameInputs!: { escKey: Phaser.Input.Keyboard.Key };
+  public gameInputs!: {
+    ESC: Phaser.Input.Keyboard.Key;
+    ONE: Phaser.Input.Keyboard.Key;
+    D: Phaser.Input.Keyboard.Key;
+  };
   public speech: any;
   public speechIsActive!: boolean;
   private planes!: Plane[];
@@ -27,18 +31,23 @@ export class RadarScene extends Phaser.Scene {
 
   init() {
     this.config = radarSceneConfig;
-    this.speechIsActive = false;
     this.gameInputs = {
-      escKey: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
+      ESC: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
+      ONE: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
+      D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
+    this.speechIsActive = false;
+    this.planes = [];
+    this.existingPlaneNames = {};
+    this.existingPlanePositions = [];
   }
 
   create() {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    const NUM_OF_PLANES = 5;
-    this.planes = this.generatePlanes(NUM_OF_PLANES);
+    const NUM_OF_PLANES = 2;
+    this.generatePlanes(NUM_OF_PLANES);
 
     /* -------------------- Init Speech Recognition -------------------- */
     initPlaneSpeechRecognition(this, this.planes);
@@ -64,16 +73,72 @@ export class RadarScene extends Phaser.Scene {
   }
 
   update() {
-    this.handlePressEscKey();
+    this.handleKeyPresses();
   }
 
-  private generatePlanes = (num: number): Plane[] => {
-    const planes: Plane[] = [];
-    this.existingPlaneNames = {};
-    this.existingPlanePositions = [];
-    let planeGenSuccess = true;
-
+  private generatePlanes = (num: number) => {
     for (let i = 0; i < num; i++) {
+      this.addNewPlane();
+    }
+  };
+
+  private initPressToTalk = () => {
+    const keyCodes = Phaser.Input.Keyboard.KeyCodes;
+    const spaceKey = this.input.keyboard.addKey(keyCodes.SPACE);
+    spaceKey.on('down', (e: Phaser.Types.Input.EventData) => {
+      if (this.speech && !this.speechIsActive) {
+        this.speech.start();
+      }
+    });
+    spaceKey.on('up', (e: Phaser.Types.Input.EventData) => {
+      this.speech.stop();
+    });
+  };
+
+  private updateSelectedPlane = () => {
+    this.planes.forEach((plane) => {
+      if (this.selectedPlane?.callsign.full === plane.callsign.full) {
+        plane.status.isSelected = true;
+      } else plane.status.isSelected = false;
+    });
+  };
+
+  private handleKeyPresses = () => {
+    if (Phaser.Input.Keyboard.JustDown(this.gameInputs.ESC))
+      this.clearSelectedPlanes();
+
+    if (Phaser.Input.Keyboard.JustDown(this.gameInputs.ONE)) {
+      this.addNewPlane();
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.gameInputs.D)) {
+      this.removePlane(this.planes[0]);
+    }
+  };
+
+  private handlePointerDown = (
+    pointer: Phaser.Input.Pointer,
+    currentlyOver: Phaser.GameObjects.GameObject[]
+  ) => {
+    if (currentlyOver.length < 1) {
+      return this.clearSelectedPlanes();
+    }
+
+    currentlyOver.forEach((gameObj) => {
+      gameObj.emit(EmitEvents.Clicked);
+    });
+  };
+
+  public clearSelectedPlanes = () => {
+    this.selectedPlane = undefined;
+    this.updateSelectedPlane();
+  };
+
+  public addNewPlane = () => {
+    let planeGenSuccess = true;
+    const maxNumOfAttempts = 10;
+    let attemptCounter = 0;
+    do {
       const newPlane = new Plane({
         config: planeConfig,
         scene: this,
@@ -112,56 +177,30 @@ export class RadarScene extends Phaser.Scene {
       if (planeGenSuccess) {
         this.existingPlaneNames[newPlane.callsign.full] = true;
         this.existingPlanePositions.push(newPlane.symbol.getCenter());
-        planes.push(newPlane);
+        this.planes.push(newPlane);
+        return;
       } else {
         newPlane.destroy(true);
+        console.error('Adding plane failed. Trying again.');
+        attemptCounter++;
       }
+    } while (planeGenSuccess === false && attemptCounter < maxNumOfAttempts);
+  };
+
+  public removePlane(specificPlane: Plane | undefined = undefined) {
+    if (!specificPlane) {
+      if (this.planes.length > 0) {
+        this.planes.pop()?.destroy(true);
+      }
+      return;
     }
 
-    return planes;
-  };
-
-  private initPressToTalk = () => {
-    const keyCodes = Phaser.Input.Keyboard.KeyCodes;
-    const spaceKey = this.input.keyboard.addKey(keyCodes.SPACE);
-    spaceKey.on('down', (e: Phaser.Types.Input.EventData) => {
-      if (this.speech && !this.speechIsActive) {
-        this.speech.start();
-      }
-    });
-    spaceKey.on('up', (e: Phaser.Types.Input.EventData) => {
-      this.speech.stop();
-    });
-  };
-
-  private updateSelectedPlane = () => {
-    this.planes.forEach((plane) => {
-      if (this.selectedPlane?.callsign.full === plane.callsign.full) {
-        plane.status.isSelected = true;
-      } else plane.status.isSelected = false;
-    });
-  };
-
-  private handlePressEscKey = () => {
-    if (Phaser.Input.Keyboard.JustDown(this.gameInputs.escKey))
-      this.clearSelectedPlanes();
-  };
-
-  private handlePointerDown = (
-    pointer: Phaser.Input.Pointer,
-    currentlyOver: Phaser.GameObjects.GameObject[]
-  ) => {
-    if (currentlyOver.length < 1) {
-      return this.clearSelectedPlanes();
+    if (specificPlane instanceof Plane) {
+      this.planes = this.planes.filter(
+        (plane) => plane.callsign.full !== specificPlane.callsign.full
+      );
+      specificPlane.destroy(true);
+      return;
     }
-
-    currentlyOver.forEach((gameObj) => {
-      gameObj.emit(EmitEvents.Clicked);
-    });
-  };
-
-  public clearSelectedPlanes = () => {
-    this.selectedPlane = undefined;
-    this.updateSelectedPlane();
-  };
+  }
 }
