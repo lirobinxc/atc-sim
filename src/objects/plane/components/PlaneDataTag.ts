@@ -48,7 +48,7 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
       this.plane.move.speed
     }`;
     const line3 = `${this.plane.move.currentHeading
-      .toString()
+      .toFixed(2)
       .padStart(3, '0')}`;
 
     const PAD_LENGTH = 6;
@@ -90,20 +90,19 @@ export class PlaneDataTag extends Phaser.GameObjects.Text {
     const historyTrail = this.plane.historyTrail;
     if (!historyTrail) return;
 
-    const historyTrailQuadrant = historyTrail.getTrailQuadrant();
-    if (historyTrailQuadrant === Quadrant.TopLeft)
+    const headingQuadrant = historyTrail.getTrailHeadingQuadrant();
+    if (headingQuadrant === Quadrant.TopLeft) this.quadrant = Quadrant.TopRight;
+    if (headingQuadrant === Quadrant.TopRight)
       this.quadrant = Quadrant.BottomRight;
-    if (historyTrailQuadrant === Quadrant.TopRight)
+    if (headingQuadrant === Quadrant.BottomRight)
       this.quadrant = Quadrant.BottomLeft;
-    if (historyTrailQuadrant === Quadrant.BottomLeft)
-      this.quadrant = Quadrant.TopRight;
-    if (historyTrailQuadrant === Quadrant.BottomRight)
+    if (headingQuadrant === Quadrant.BottomLeft)
       this.quadrant = Quadrant.TopLeft;
 
     this.autoSetQuadrant = false;
   }
 
-  private cycleTagPosition() {
+  public cycleTagPosition() {
     switch (this.quadrant) {
       case Quadrant.TopLeft:
         return (this.quadrant = Quadrant.TopRight);

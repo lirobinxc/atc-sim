@@ -3,10 +3,11 @@ import { CallsignType } from '../utils/generateCallsign';
 export const planeConfig = {
   plane: {
     CALLSIGN_TYPE: CallsignType.Casual,
-    INITIAL_SPEED: 4,
+    INITIAL_SPEED: 10,
     COLOR: 0xa0f078,
     COLOR_SELECTED: 0xcc66ff,
     SIZE: 10,
+    TURN_RATE: 0.4, // degrees per frame
   },
   dataTag: {
     FONT_COLOR: '#fff',
@@ -16,6 +17,12 @@ export const planeConfig = {
   },
   pilotSpeech: {
     TEXT_OFFSET_Y: 20,
+  },
+  historyTrail: {
+    MAX_DOTS: 5,
+    INTERVAL: 1500, // milliseconds
+    LATEST_COLOR: 0xa0f078,
+    HISTORY_COLOR: 0x73ab57,
   },
 };
 

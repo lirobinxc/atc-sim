@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { EmitEvents } from '../../../types/EmitEvents';
 import { convertHeadingToRadians } from '../../../utils/convertHeadingToRadians';
 import { Plane } from '../Plane';
 
@@ -27,9 +28,11 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
     // Add object to the scene
     // NOTE: This is required to activate preUpdate() method
     this.scene.add.existing(this);
+    this.setDepth(1);
 
     // Enable physics on the Plane object
     this.scene.physics.add.existing(this);
+    this.updatePlaneVelocity();
 
     // Config the physics body
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -38,37 +41,46 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
 
     /* -------------------------- Init Events -------------------------- */
     this.setInteractive();
-    this.on('pointerdown', () => {
-      plane.status.isSelected = true;
-    });
   }
 
   preUpdate() {
     this.updateNewHeading();
+    this.updatePlaneVelocity();
     this.changeColorOnClick();
   }
 
   /** Updates velocity when given a compass heading. */
-  private updateNewHeading(plane = this.plane) {
-    const body = this.body as Phaser.Physics.Arcade.Body;
+  private updateNewHeading() {
     // CurrentHeading is gradually dec/inc until it reaches the newHeading
-    if (plane.move.currentHeading !== plane.move.newHeading) {
-      plane.status.isExecutingCommand = true;
-      if (plane.move.turnTo === 'Left') {
-        if (plane.move.currentHeading === 1) plane.move.currentHeading = 360;
-        else plane.move.currentHeading -= 1;
+    const TURN_RATE = this.plane.config.plane.TURN_RATE;
+
+    if (
+      this.plane.move.currentHeading < this.plane.move.newHeading - TURN_RATE ||
+      this.plane.move.currentHeading > this.plane.move.newHeading + TURN_RATE
+    ) {
+      this.plane.status.isExecutingCommand = true;
+      if (this.plane.move.turnTo === 'Left') {
+        if (this.plane.move.currentHeading <= 1)
+          this.plane.move.currentHeading = 360;
+        else this.plane.move.currentHeading -= TURN_RATE;
       }
-      if (plane.move.turnTo === 'Right') {
-        if (plane.move.currentHeading === 360) plane.move.currentHeading = 1;
-        else plane.move.currentHeading += 1;
+      if (this.plane.move.turnTo === 'Right') {
+        if (this.plane.move.currentHeading >= 360)
+          this.plane.move.currentHeading = 1;
+        else this.plane.move.currentHeading += TURN_RATE;
       }
     } else {
-      plane.status.isExecutingCommand = false;
+      this.plane.move.currentHeading = this.plane.move.newHeading;
+      this.plane.status.isExecutingCommand = false;
     }
-    const planeRadian = convertHeadingToRadians(plane.move.currentHeading);
+  }
+
+  private updatePlaneVelocity() {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    const planeRadian = convertHeadingToRadians(this.plane.move.currentHeading);
     this.scene.physics.velocityFromRotation(
       planeRadian,
-      plane.move.speed,
+      this.plane.move.speed,
       body.velocity
     );
   }
@@ -79,11 +91,6 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
       this.fillColor = plane.config.plane.COLOR_SELECTED;
     } else {
       this.fillColor = plane.config.plane.COLOR;
-    }
-    const escKey: Phaser.Input.Keyboard.Key =
-      this.scene.input.keyboard.addKey('ESC');
-    if (escKey.isDown) {
-      plane.status.isSelected = false;
     }
   }
 }

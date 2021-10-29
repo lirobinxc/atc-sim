@@ -66,7 +66,7 @@ export class Plane extends Phaser.GameObjects.Group {
       this.dataTagLine,
       this.pilotSpeech,
     ];
-    groupChildren.forEach((child) => this.add(child));
+    this.addMultiple(groupChildren);
   }
 
   /** Regenerates the plane's callsign. */
