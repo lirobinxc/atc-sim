@@ -54,13 +54,13 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
     }
   }
 
-  public talk(phrase: string) {
+  public talk(phrase: string, displayText: string) {
     if (!this.speechSynth) return;
 
     if (!this.isTalking) {
       this.isTalking = true;
-      this.text = phrase;
-      const utterThis = new SpeechSynthesisUtterance(this.text);
+      this.text = displayText;
+      const utterThis = new SpeechSynthesisUtterance(phrase);
 
       if (this.pilotVoice) {
         utterThis.voice = this.pilotVoice;
@@ -87,7 +87,6 @@ export class PilotSpeech extends Phaser.GameObjects.Text {
             voice.lang[1] === 'n' &&
             voice.name !== 'Google US English'
         );
-      console.log(voices);
 
       this.pilotVoice = voices[Phaser.Math.Between(0, voices.length - 1)];
     }

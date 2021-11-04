@@ -190,6 +190,7 @@ export class RadarScene extends Phaser.Scene {
   public removePlane(specificPlane: Plane | undefined = undefined) {
     if (!specificPlane) {
       if (this.planes.length > 0) {
+        this.existingPlaneNames;
         this.planes.pop()?.destroy(true);
       }
       return;

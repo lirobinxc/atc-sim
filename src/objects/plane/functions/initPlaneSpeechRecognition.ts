@@ -1,6 +1,9 @@
 import { planeConfig } from '../../../config/PlaneConfig';
 import { RadarScene } from '../../../scenes/RadarScene';
-import { PilotPhrases } from '../../../types/PilotPhrases';
+import {
+  PilotPhrases,
+  PilotPhrasesPhonetic,
+} from '../../../types/PilotPhrases';
 import {
   PlaneCarriersAuthenticSpoken,
   PlaneCarriersCasualSpoken,
@@ -12,10 +15,16 @@ import { grammar } from './grammar';
 
 /* --------------------- Init Speech Recognition -------------------- */
 export function initPlaneSpeechRecognition(scene: RadarScene, planes: Plane[]) {
-  function talk(plane: Plane, phrase: string) {
+  function talk(plane: Plane, phrase: string | string[], displayText: string) {
     if (!plane) return;
 
-    plane.pilotSpeech.talk(phrase);
+    if (typeof phrase === 'string')
+      return plane.pilotSpeech.talk(phrase, displayText);
+
+    if (typeof phrase === 'object') {
+      const line = phrase.join(', ');
+      return plane.pilotSpeech.talk(line, displayText);
+    }
   }
 
   if ('webkitSpeechRecognition' in window) {
@@ -86,6 +95,21 @@ export function initPlaneSpeechRecognition(scene: RadarScene, planes: Plane[]) {
           if (turnStr === 'left') plane.move.turnTo = 'Left';
           if (turnStr === 'right') plane.move.turnTo = 'Right';
 
+          // Squawk Ident
+          const squawkPrefixIdx = words.indexOf('squawk');
+          const squawkCommand = words[squawkPrefixIdx + 1];
+          if (squawkCommand === 'ident') {
+            plane.squawkIdent();
+            console.log('spoken:', plane.callsign.spoken);
+            talk(
+              plane,
+              [plane.callsign.spoken, PilotPhrasesPhonetic.SquawkIdent],
+              `${plane.callsign.full}, ${PilotPhrases.SquawkIdent}`
+            );
+            return;
+          }
+
+          // Talk
           if (isNaN(headingNum)) {
             talk(plane, PilotPhrases.SayAgain);
           } else if (headingNum < 1 || headingNum > 360) {

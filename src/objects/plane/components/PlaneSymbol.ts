@@ -50,7 +50,7 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
   }
 
   /** Updates velocity when given a compass heading. */
-  private updateNewHeading() {
+  private updateNewHeading = () => {
     // CurrentHeading is gradually dec/inc until it reaches the newHeading
     const TURN_RATE = this.plane.config.plane.TURN_RATE;
 
@@ -73,9 +73,9 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
       this.plane.move.currentHeading = this.plane.move.newHeading;
       this.plane.status.isExecutingCommand = false;
     }
-  }
+  };
 
-  private updatePlaneVelocity() {
+  private updatePlaneVelocity = () => {
     const body = this.body as Phaser.Physics.Arcade.Body;
     const planeRadian = convertHeadingToRadians(this.plane.move.currentHeading);
     this.scene.physics.velocityFromRotation(
@@ -83,14 +83,14 @@ export class PlaneSymbol extends Phaser.GameObjects.Rectangle {
       this.plane.move.speed,
       body.velocity
     );
-  }
+  };
 
   /** Change plane color if selected */
-  private changeColorOnClick(plane = this.plane) {
+  private changeColorOnClick = (plane = this.plane) => {
     if (plane.status.isSelected) {
       this.fillColor = plane.config.plane.COLOR_SELECTED;
     } else {
       this.fillColor = plane.config.plane.COLOR;
     }
-  }
+  };
 }

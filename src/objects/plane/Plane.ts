@@ -76,4 +76,16 @@ export class Plane extends Phaser.GameObjects.Group {
   regenerateCallsign() {
     this.callsign = generateCallsign(this.config.plane.CALLSIGN_TYPE);
   }
+
+  public squawkIdent = () => {
+    const blinkSpeed = 200; // milliseconds
+    const blinkTime = 3000; // milliseconds
+    const interval = setInterval(() => {
+      this.symbol.setVisible(!this.symbol.visible);
+    }, blinkSpeed);
+    setTimeout(() => {
+      clearInterval(interval);
+      this.symbol.setVisible(true);
+    }, blinkTime);
+  };
 }
